@@ -1,5 +1,6 @@
 # Read Excel Files for the CSA project
 from openpyxl import load_workbook
+import pandas as pd
 
 # Locations
 db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA Db Starting from Z.xlsm"
@@ -78,7 +79,19 @@ def main():
         # run the main program
         sheet = load_sheet(db_loc)
         patient_array = sheet_to_arrays(sheet)
-        print(str(patient_array))
+        df = pd.DataFrame.from_records(patient_array, columns= ['MRN', 'Age', 'Sex', 'BMI', 'AHI', 'FinalTx', 'Outcome'])
+
+        print("Age Descriptive Statistics:\n")
+        print(str(df['Age'].describe()))
+
+        print("BMI Descriptive Statistics:\n")
+        print(str(df['BMI'].describe()))
+
+        print("AHI Descriptive Statistics:\n")
+        print(str(df['AHI'].describe()))
+
+        #print("Age\n" +df['Age'].describe())
+
 
 if __name__ == '__main__':
     main()

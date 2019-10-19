@@ -2,10 +2,6 @@
 from openpyxl import load_workbook
 import pandas as pd
 
-# Locations
-db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
-
-
 def load_sheet(location):
     """loads the sheet excel doc and returns the 1st sheet"""
     wb = load_workbook(location, read_only=True, data_only=True)
@@ -38,14 +34,14 @@ def sheet_to_arrays(excel_sheet):
 
     Patients = list()
 
-    print("Processing excel spreadsheet")
+    # print("Processing excel spreadsheet")
     i = 1
 
     for patient in excel_sheet.iter_rows():
         # For each row that has an MRN entry...
-        print("Processing chart #" + str(i))
+        # print("Processing chart #" + str(i))
         row = list()
-        #row.append(patient[MRN_Column].value)
+        row.append(i-1) # = ID, previously (patient[MRN_Column].value)
 
         try:
             row.append(int(patient[Age_Column].value))
@@ -65,28 +61,28 @@ def sheet_to_arrays(excel_sheet):
             row.append(None)
         # Should these following ones be made discrete?
         try:
-            row.append(patient[Base_Dx_Column].value.lower())
+            row.append(patient[Base_Dx_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
             row.append(None)
         try:
-            row.append(patient[Post_Dx_Column].value.lower())
+            row.append(patient[Post_Dx_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
             row.append(None)
         try:
-            row.append(patient[Final_Tx_Column].value.lower())
+            row.append(patient[Final_Tx_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
             row.append(None)
         try:
-            row.append(patient[Outcome_Column].value.lower())
+            row.append(patient[Outcome_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
             row.append(None)
 
         try:
-            row.append(patient[Path_ASV_Column].value.lower())
+            row.append(patient[Path_ASV_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
             row.append(None)
         try:
-            row.append(patient[Time_ASV_Column].value.lower())
+            row.append(patient[Time_ASV_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
             row.append(None)
         Patients.append(row)
@@ -97,9 +93,12 @@ def sheet_to_arrays(excel_sheet):
 
 def arrays_to_df(patient_array):
     """takes the database in array form and outputs a dataframe with variables
-    categorized"""
+    categorized.
 
-    df = pd.DataFrame.from_records(patient_array, columns=['Age',
+    ['ID', Age', 'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
+    "ProcToASV", "TimeToASV]"""
+
+    df = pd.DataFrame.from_records(patient_array, columns=['ID', 'Age',
         'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
         "ProcToASV", "TimeToASV"])
 
@@ -112,6 +111,14 @@ def arrays_to_df(patient_array):
         "Pure CSA (<10% OSA)".lower()], ordered=True)
     df['BaseDx'] = df['BaseDx'].astype(BaseDxCat)
 
+    # Not sure why this doesn't update cats going forward
+    # df['BaseDx'].cat.rename_categories({
+    #    "Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower(): '<10% CSA',
+    #    "Combined OSA/CSA (CSA 10-50%)".lower(): '10-50% CSA',
+    #    "Predominantly CSA (>50% CSA)".lower(): '50-90% CSA',
+    #    "Pure CSA (<10% OSA)".lower(): '>90% CSA'})
+
+    # Need to figure how to split
     df['PostDx'] = df['PostDx'].astype('category')
 
     FinalTxCat = pd.api.types.CategoricalDtype(categories=["cpap", "bipap",
@@ -119,9 +126,10 @@ def arrays_to_df(patient_array):
         "other", "ivaps"], ordered=False)
     df['FinalTx'] = df['FinalTx'].astype(FinalTxCat)
 
-    OutcomeCat = pd.api.types.CategoricalDtype(categories=[
-        "resolved w/ cpap", "failed cpap", "non-compliant"], ordered=False)
-    df['Outcome'] = df['Outcome'].astype(OutcomeCat)
+#    OutcomeCat = pd.api.types.CategoricalDtype(categories=[
+#        "resolved w/ cpap", "failed cpap", "non-compliant", "n/a"], ordered=False)
+
+    df['Outcome'] = df['Outcome'].astype('category')
 
     df['ProcToASV'] = df['ProcToASV'].astype('category')
     df['TimeToASV'] = df['TimeToASV'].astype('category')
@@ -139,25 +147,10 @@ def main():
     testing_mode = 1
 
     if testing_mode == 0:
-        #test mode
-        pass
+        test_db_gen()
     else:
         # run the main program
-        df = arrays_to_df(sheet_to_arrays(load_sheet(db_loc)))
-
-        print("Age Descriptive Statistics:\n")
-        print(str(df['Age'].describe()))
-
-        print("BMI Descriptive Statistics:\n")
-        print(str(df['BMI'].describe()))
-
-        print("AHI Descriptive Statistics:\n")
-        print(str(df['AHI'].describe()))
-
-        print(df['TimeToASV'])
-
-        #print("Age\n" +df['Age'].describe())
-        df.to_excel('output.xlsx')
+        pass
 
 if __name__ == '__main__':
     main()

@@ -3,7 +3,7 @@ from openpyxl import load_workbook
 import pandas as pd
 
 # Locations
-db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA Db Starting from Z.xlsm"
+db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
 
 
 def load_sheet(location):
@@ -12,14 +12,29 @@ def load_sheet(location):
     return wb[wb.sheetnames[0]]
 
 def sheet_to_arrays(excel_sheet):
-    """makes a 2 dimensional list database and fills it based on an openpyxl excel sheet"""
-    MRN_Column = 2
+    """makes a 2 dimensional list database and fills it based on an
+    openpyxl excel sheet"""
+    # Name_Column = 1
+    # MRN_Column = 2
+    # DOB_Column = 3
     Age_Column = 4 # Age at diag sleep study
     Sex_Column = 5
+    # Race_Columnn = 6
+    # Zip_Column = 7
     BMI_Column = 8
+    # Smoking_Column = 9
+    # Comorb_Column = 10 (split?)
+    # Heart_Column = 11 (split?)
+    # CNS_Coluimn = 12 (split?)
+    Base_Dx_Column = 13
     AHI_Column = 14 # Diagnostic AHI
+    Post_Dx_Column = 15
     Final_Tx_Column = 16
     Outcome_Column = 17
+    Path_ASV_Column = 18
+    Time_ASV_Column = 19
+    # Loc_Column = 20
+    # Sleep_Study_Column = 21
 
     Patients = list()
 
@@ -30,7 +45,7 @@ def sheet_to_arrays(excel_sheet):
         # For each row that has an MRN entry...
         print("Processing chart #" + str(i))
         row = list()
-        row.append(patient[MRN_Column].value)
+        #row.append(patient[MRN_Column].value)
 
         try:
             row.append(int(patient[Age_Column].value))
@@ -50,6 +65,14 @@ def sheet_to_arrays(excel_sheet):
             row.append(None)
         # Should these following ones be made discrete?
         try:
+            row.append(patient[Base_Dx_Column].value.lower())
+        except(ValueError, TypeError, AttributeError):
+            row.append(None)
+        try:
+            row.append(patient[Post_Dx_Column].value.lower())
+        except(ValueError, TypeError, AttributeError):
+            row.append(None)
+        try:
             row.append(patient[Final_Tx_Column].value.lower())
         except(ValueError, TypeError, AttributeError):
             row.append(None)
@@ -57,10 +80,53 @@ def sheet_to_arrays(excel_sheet):
             row.append(patient[Outcome_Column].value.lower())
         except(ValueError, TypeError, AttributeError):
             row.append(None)
+
+        try:
+            row.append(patient[Path_ASV_Column].value.lower())
+        except(ValueError, TypeError, AttributeError):
+            row.append(None)
+        try:
+            row.append(patient[Time_ASV_Column].value.lower())
+        except(ValueError, TypeError, AttributeError):
+            row.append(None)
         Patients.append(row)
         i = i+1
 
     return Patients[1:]  # take off the first row = labels
+
+
+def arrays_to_df(patient_array):
+    """takes the database in array form and outputs a dataframe with variables
+    categorized"""
+
+    df = pd.DataFrame.from_records(patient_array, columns=['Age',
+        'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
+        "ProcToASV", "TimeToASV"])
+
+    df['Sex'] = df['Sex'].astype('category')
+
+    BaseDxCat = pd.api.types.CategoricalDtype(categories=[
+        "Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower(),
+        "Combined OSA/CSA (CSA 10-50%)".lower(),
+        "Predominantly CSA (>50% CSA)".lower(),
+        "Pure CSA (<10% OSA)".lower()], ordered=True)
+    df['BaseDx'] = df['BaseDx'].astype(BaseDxCat)
+
+    df['PostDx'] = df['PostDx'].astype('category')
+
+    FinalTxCat = pd.api.types.CategoricalDtype(categories=["cpap", "bipap",
+        "asv (resmed/ respironics)","supplemental oxygen", "no treatment",
+        "other", "ivaps"], ordered=False)
+    df['FinalTx'] = df['FinalTx'].astype(FinalTxCat)
+
+    OutcomeCat = pd.api.types.CategoricalDtype(categories=[
+        "resolved w/ cpap", "failed cpap", "non-compliant"], ordered=False)
+    df['Outcome'] = df['Outcome'].astype(OutcomeCat)
+
+    df['ProcToASV'] = df['ProcToASV'].astype('category')
+    df['TimeToASV'] = df['TimeToASV'].astype('category')
+
+    return df
 
 
 def test_db_gen():
@@ -77,9 +143,7 @@ def main():
         pass
     else:
         # run the main program
-        sheet = load_sheet(db_loc)
-        patient_array = sheet_to_arrays(sheet)
-        df = pd.DataFrame.from_records(patient_array, columns= ['MRN', 'Age', 'Sex', 'BMI', 'AHI', 'FinalTx', 'Outcome'])
+        df = arrays_to_df(sheet_to_arrays(load_sheet(db_loc)))
 
         print("Age Descriptive Statistics:\n")
         print(str(df['Age'].describe()))
@@ -90,8 +154,10 @@ def main():
         print("AHI Descriptive Statistics:\n")
         print(str(df['AHI'].describe()))
 
-        #print("Age\n" +df['Age'].describe())
+        print(df['TimeToASV'])
 
+        #print("Age\n" +df['Age'].describe())
+        df.to_excel('output.xlsx')
 
 if __name__ == '__main__':
     main()

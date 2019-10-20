@@ -40,10 +40,12 @@ def main():
     print("\n\n----AMONG PATIENTS WITH PREDOMINANTLY CSA (MORE THAN 50%)----\n")
     CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA (>50% CSA)".lower()]
     CSA_pure = df.loc[df['BaseDx'] == "Pure CSA (<10% OSA)".lower()]
-    summary_stats(pd.merge(CSA_predom, CSA_pure,how='outer'))
+    summary_stats(pd.merge(CSA_predom, CSA_pure, how='outer'))
 
-
-
+    print("\n\n----AMONG PATIENTS WITH < 50% CSA-----")
+    OSA_predom = df.loc[df['BaseDx'] == "Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower()]
+    OSA_pure = df.loc[df['BaseDx'] == "Combined OSA/CSA (CSA 10-50%)".lower()]
+    summary_stats(pd.merge(OSA_predom, OSA_pure, how='outer'))
 
     # "Pure CSA (<10% OSA)".lower()
 

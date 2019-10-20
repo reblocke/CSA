@@ -1,0 +1,278 @@
+
+
+----AMONG THE ENTIRE DATASET----
+
+
+Age Summary Statistics:
+
+count    738.000000
+mean      58.787263
+std       15.017656
+min       20.000000
+25%       48.250000
+50%       60.000000
+75%       70.000000
+max       91.000000
+Name: Age, dtype: float64
+
+BMI Summary Statistics:
+
+count    728.000000
+mean      32.634547
+std        7.636828
+min       18.000000
+25%       27.600000
+50%       31.100000
+75%       36.525000
+max       72.500000
+Name: BMI, dtype: float64
+
+AHI Summary Statistics:
+
+count    737.000000
+mean      45.558073
+std       32.696480
+min        0.000000
+25%       21.500000
+50%       37.100000
+75%       62.700000
+max      205.000000
+Name: AHI, dtype: float64
+
+Base Dx Counts:
+
+combined osa/csa (csa 10-50%)                                  406
+mainly osa (<10% csa or most centra events either socapaca)    185
+predominantly csa (>50% csa)                                   115
+pure csa (<10% osa)                                             32
+Name: BaseDx, dtype: int64
+
+Post Dx Counts:
+
+te csa                                                                                                                                                                                              246
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                                                                                      150
+osa-associated                                                                                                                                                                                      118
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                                                                     85
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                                                                       52
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                     29
+te csa, csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                                                                9
+primary csa (idiopathic csa)                                                                                                                                                                          9
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                      8
+te csa, csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                                                                                6
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                      6
+te csa, csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                                                              6
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                        3
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)      2
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), te csa                                                                                                              2
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                      2
+none                                                                                                                                                                                                  1
+n/a                                                                                                                                                                                                   1
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), te csa                                                                                                                                                1
+primary csa (idiopathic csa) , te csa                                                                                                                                                                 1
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                        1
+Name: PostDx, dtype: int64
+
+Final Tx Counts:
+
+cpap                         379
+asv (resmed/ respironics)    219
+bipap                         57
+supplemental oxygen           49
+no treatment                  26
+other                          7
+ivaps                          1
+Name: FinalTx, dtype: int64
+
+Outcome Counts:
+
+resolved w/ cpap    294
+n/a                 171
+failed cpap         159
+non-compliant       111
+resolved w/bipap      2
+Name: Outcome, dtype: int64
+
+
+----AMONG PATIENTS WITH PREDOMINANTLY CSA (MORE THAN 50%)----
+
+
+Age Summary Statistics:
+
+count    147.000000
+mean      58.646259
+std       15.859746
+min       25.000000
+25%       47.000000
+50%       61.000000
+75%       70.500000
+max       89.000000
+Name: Age, dtype: float64
+
+BMI Summary Statistics:
+
+count    145.000000
+mean      30.899586
+std        7.183689
+min       18.700000
+25%       26.300000
+50%       29.600000
+75%       35.000000
+max       72.200000
+Name: BMI, dtype: float64
+
+AHI Summary Statistics:
+
+count    147.000000
+mean      55.011156
+std       36.487093
+min        1.000000
+25%       27.300000
+50%       49.000000
+75%       74.650000
+max      205.000000
+Name: AHI, dtype: float64
+
+Base Dx Counts:
+
+predominantly csa (>50% csa)                                   115
+pure csa (<10% osa)                                             32
+combined osa/csa (csa 10-50%)                                    0
+mainly osa (<10% csa or most centra events either socapaca)      0
+Name: BaseDx, dtype: int64
+
+Post Dx Counts:
+
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                                                                                      50
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                                                                    28
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                                                                      22
+osa-associated                                                                                                                                                                                      13
+primary csa (idiopathic csa)                                                                                                                                                                         8
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                     8
+te csa                                                                                                                                                                                               7
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                     3
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                     1
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                     1
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                       1
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                       1
+te csa, csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                                                                               1
+none                                                                                                                                                                                                 1
+primary csa (idiopathic csa) , te csa                                                                                                                                                                1
+te csa, csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                                                             1
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), te csa                                                                                                                                               0
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)     0
+n/a                                                                                                                                                                                                  0
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), te csa                                                                                                             0
+te csa, csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                                                               0
+Name: PostDx, dtype: int64
+
+Final Tx Counts:
+
+asv (resmed/ respironics)    54
+cpap                         48
+supplemental oxygen          30
+no treatment                  7
+bipap                         7
+other                         1
+ivaps                         0
+Name: FinalTx, dtype: int64
+
+Outcome Counts:
+
+n/a                 66
+resolved w/ cpap    28
+failed cpap         27
+non-compliant       26
+resolved w/bipap     0
+Name: Outcome, dtype: int64
+
+
+----AMONG PATIENTS WITH < 50% CSA-----
+
+Age Summary Statistics:
+
+count    591.000000
+mean      58.822335
+std       14.814580
+min       20.000000
+25%       49.000000
+50%       60.000000
+75%       70.000000
+max       91.000000
+Name: Age, dtype: float64
+
+BMI Summary Statistics:
+
+count    583.000000
+mean      33.066055
+std        7.690677
+min       18.000000
+25%       28.000000
+50%       31.900000
+75%       36.950000
+max       72.500000
+Name: BMI, dtype: float64
+
+AHI Summary Statistics:
+
+count    590.000000
+mean      43.202814
+std       31.273159
+min        0.000000
+25%       20.250000
+50%       35.150000
+75%       57.700000
+max      176.000000
+Name: AHI, dtype: float64
+
+Base Dx Counts:
+
+combined osa/csa (csa 10-50%)                                  406
+mainly osa (<10% csa or most centra events either socapaca)    185
+pure csa (<10% osa)                                              0
+predominantly csa (>50% csa)                                     0
+Name: BaseDx, dtype: int64
+
+Post Dx Counts:
+
+te csa                                                                                                                                                                                              239
+osa-associated                                                                                                                                                                                      105
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                                                                                      100
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                                                                     57
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                                                                       30
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                     21
+te csa, csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                                                                9
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                      7
+te csa, csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                                                                                5
+te csa, csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                                                                              5
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)                                                      3
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)      2
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                                                        2
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), te csa                                                                                                              2
+n/a                                                                                                                                                                                                   1
+primary csa (idiopathic csa)                                                                                                                                                                          1
+csa w/heart dz (hfref <45%/ hfpef >45% /a.fib), te csa                                                                                                                                                1
+csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other), csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)                                                      1
+none                                                                                                                                                                                                  0
+primary csa (idiopathic csa) , te csa                                                                                                                                                                 0
+csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other), csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)                                                                                        0
+Name: PostDx, dtype: int64
+
+Final Tx Counts:
+
+cpap                         331
+asv (resmed/ respironics)    165
+bipap                         50
+no treatment                  19
+supplemental oxygen           19
+other                          6
+ivaps                          1
+Name: FinalTx, dtype: int64
+
+Outcome Counts:
+
+resolved w/ cpap    266
+failed cpap         132
+n/a                 105
+non-compliant        85
+resolved w/bipap      2
+Name: Outcome, dtype: int64

@@ -1,6 +1,8 @@
 from openpyxl import load_workbook
 import pandas as pd
 from ReadExcel import *
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def summary_stats(df):
 
@@ -25,15 +27,27 @@ def summary_stats(df):
     print("\nOutcome Counts:\n")
     print(str(df['Outcome'].value_counts()))
 
-def main():
-    # Location of Db file
-    db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
-    df = arrays_to_df(sheet_to_arrays(load_sheet(db_loc)))
+def visualizations(df):
+    sns.set()
+    # Severity of OSA by porcent CSAs and Sex
+    ax = sns.boxplot('BaseDx', 'AHI', hue='Sex', data=df)
+    ax.set_title("Severity of OSA by Percent CSAs and Sex")
 
-    # ['ID', 'Age', 'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
-    # "ProcToASV", "TimeToASV]
-    df.to_excel('output.xlsx')
+    # Outcome by Base Dx as histograms
+    # Todo: figure out how to normalize this
+    # sns.catplot('BaseDx', hue='Outcome', kind='count', data=df)
 
+    # Vis of distribution of AHIs
+    # cleaned_df = df[df['AHI'].notnull()]
+    # sns.distplot(cleaned_df['AHI'])
+
+    #Box plot? https://medium.com/@kvnamipara/a-better-visualisation-of-pie-charts-by-matplotlib-935b7667d77f
+    #Need to find counts transformation
+
+    plt.show()
+
+
+def printSumByBaseDx(df):
     print("\n\n----AMONG THE ENTIRE DATASET----\n")
     summary_stats(df)
 
@@ -46,6 +60,21 @@ def main():
     OSA_predom = df.loc[df['BaseDx'] == "Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower()]
     OSA_pure = df.loc[df['BaseDx'] == "Combined OSA/CSA (CSA 10-50%)".lower()]
     summary_stats(pd.merge(OSA_predom, OSA_pure, how='outer'))
+
+
+def main():
+    # Location of Db file
+    db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
+    df = arrays_to_df(sheet_to_arrays(load_sheet(db_loc)))
+
+    # ['ID', 'Age', 'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
+    # "ProcToASV", "TimeToASV]
+    df.to_excel('output.xlsx')
+
+    visualizations(df)
+
+    # printSumByBaseDx(df)
+
 
     # "Pure CSA (<10% OSA)".lower()
 

@@ -104,19 +104,16 @@ def arrays_to_df(patient_array):
 
     df['Sex'] = df['Sex'].astype('category')
 
-    BaseDxCat = pd.api.types.CategoricalDtype(categories=[
-        "Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower(),
-        "Combined OSA/CSA (CSA 10-50%)".lower(),
-        "Predominantly CSA (>50% CSA)".lower(),
-        "Pure CSA (<10% OSA)".lower()], ordered=True)
-    df['BaseDx'] = df['BaseDx'].astype(BaseDxCat)
+    df['BaseDx'] = df['BaseDx'].replace(
+        {"Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower(): 'Mainly OSA',
+        "Combined OSA/CSA (CSA 10-50%)".lower(): 'Combined OSA/CSA',
+        "Predominantly CSA (>50% CSA)".lower(): 'Predominantly CSA',
+        "Pure CSA (<10% OSA)".lower(): 'Pure CSA'})
 
-    # Not sure why this doesn't update cats going forward
-    # df['BaseDx'].cat.rename_categories({
-    #    "Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower(): '<10% CSA',
-    #    "Combined OSA/CSA (CSA 10-50%)".lower(): '10-50% CSA',
-    #    "Predominantly CSA (>50% CSA)".lower(): '50-90% CSA',
-    #    "Pure CSA (<10% OSA)".lower(): '>90% CSA'})
+    BaseDxCat = pd.api.types.CategoricalDtype(categories=[
+        'Mainly OSA', 'Combined OSA/CSA', 'Predominantly CSA',
+        'Pure CSA'], ordered=True)
+    df['BaseDx'] = df['BaseDx'].astype(BaseDxCat)
 
     # Need to figure how to split
     df['PostDx'] = df['PostDx'].astype('category')

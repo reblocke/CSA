@@ -3,6 +3,7 @@ import pandas as pd
 from ReadExcel import *
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.sankey as sankey
 
 def summary_stats(df):
 
@@ -44,8 +45,44 @@ def pieChartBaseDx(df):
     plt.tight_layout()
     plt.show()
 
+def sankeyTypeOutcome(df):
+    fig = plt.figure()  # container object
+    ax = plt.axes() # the box we'll draw in
+
+    dx_counts = df['BaseDx'].value_counts().sort_index()
+    outcome_counts = df['Outcome'].value_counts() * -1.0
+    x = dx_counts.get_values().sum()
+
+    flow = dx_counts.get_values().tolist() + outcome_counts.get_values().tolist()
+    label = dx_counts.index.tolist() + outcome_counts.index.tolist()
+
+    sk = sankey.Sankey(ax, head_angle=120, offset=0.3, scale=1/float(x),
+        unit=" patients", gap=0.6, margin=0.1,
+        flows= flow,
+        labels=label,
+        orientations=[1, 0, -1, -1, 1, -1, 0, -1, 1])
+
+    #sk.add(flows=[0.05, 0.05, 0.9, -0.20, -0.15, -0.05, -0.50, -0.10],
+    #    labels=['In1', 'In2', 'In3', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
+    #    orientations=[-1, 1, 0, 1, 1, 1, 0, -1])
+
+    sk.finish()
+    # plt.tight_layout()
+    ax.set_title("Percentage Central Apnea and Outcome of Entire Dataset")
+    ax.set_axis_off()
+    plt.show()
 
 def visualizations(df):
+    #plt.style.use('seaborn-whitegrid')
+    fig = plt.figure()  # container object
+    ax = plt.axes() # the box we'll draw in
+
+    #sk = sankey.Sankey(ax, head_angle=90, offset=0.1, scale=1.0, unit="'%'",
+    #    format="'%f.0'", gap=0.25,
+    #    flows=[0.05, 0.05, 0.9, -0.20, -0.15, -0.05, -0.50, -0.10],
+    #    labels=['In1', 'In2', 'In3', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
+    #    orientations=[-1, 1, 0, 1, 1, 1, 0, -1])
+    #sk.finish()
 
     # Severity of OSA by porcent CSAs and Sex
     #ax = sns.boxplot('BaseDx', 'AHI', hue='Sex', data=df)
@@ -56,7 +93,8 @@ def visualizations(df):
     # Vis of distribution of AHIs
     # cleaned_df = df[df['AHI'].notnull()]
     # sns.distplot(cleaned_df['AHI'])
-    pass
+    plt.tight_layout()
+    plt.show()
 
 
 def printSumByBaseDx(df):
@@ -83,9 +121,10 @@ def main():
     # "ProcToASV", "TimeToASV]
     df.to_excel('output.xlsx')
 
-    visualizations(df)
+    sankeyTypeOutcome(df)
+    #visualizations(df)
 
-    pieChartBaseDx(df)
+    #pieChartBaseDx(df)
     #printSumByBaseDx(df)
 
 if __name__ == '__main__':

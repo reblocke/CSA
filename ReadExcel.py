@@ -91,6 +91,26 @@ def sheet_to_arrays(excel_sheet):
     return Patients[1:]  # take off the first row = labels
 
 
+def histo_dx_includes(df):
+    """Returns a historgram (pandas series) of diagnosis where a post-titration diagnosis of
+    w/ multiple factors (e.g. Meds+CV) each are counted toward their respective
+    category counts"""
+
+    # TODO: need to find and delete combination TE + other etiology postDx's
+    histo = pd.Series({"TE":0,
+        "OSA":0,
+        "CV":0,
+        "CNS":0,
+        "Med":0,
+        "Prim":0})
+
+    for dx in df['PostDx']:
+        dxstr = str(dx)
+        for cat in histo.index:
+            if cat in dxstr:
+                histo[cat] +=1
+    return histo
+
 def arrays_to_df(patient_array):
     """takes the database in array form and outputs a dataframe with variables
     categorized.
@@ -115,8 +135,8 @@ def arrays_to_df(patient_array):
         'Pure CSA'], ordered=True)
     df['BaseDx'] = df['BaseDx'].astype(BaseDxCat)
 
-    # Need to figure how to split
-    df['PostDx'] = df['PostDx'].astype('category')
+    # transform PostDx to shorter labels
+    df['PostDx'] = df['PostDx'].apply(matchDx).astype('category')
 
     FinalTxCat = pd.api.types.CategoricalDtype(categories=["cpap", "bipap",
         "asv (resmed/ respironics)","supplemental oxygen", "no treatment",
@@ -132,6 +152,20 @@ def arrays_to_df(patient_array):
     df['TimeToASV'] = df['TimeToASV'].astype('category')
 
     return df
+
+
+def matchDx(pt_dx):
+    """match the diagnosis up with the shorter labels"""
+    new_dx = ""
+    rep = {"te csa": "+TE",
+        "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"+CNS",
+        "primary csa (idiopathic csa)":"+Prim",
+        "osa-associated":"+OSA",
+        "csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)":"+Med",
+        "csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)":"+CV"}
+    for dx in pt_dx.split(","):
+        new_dx = new_dx + rep[dx.strip().lower()]
+    return new_dx[1:]  #-first +
 
 
 def test_db_gen():

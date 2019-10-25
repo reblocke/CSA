@@ -45,6 +45,34 @@ def pieChartBaseDx(df):
     plt.tight_layout()
     plt.show()
 
+
+def sankeyTypeFinalTx(df):
+    fig = plt.figure()  # container object
+    ax = plt.axes() # the box we'll draw in
+
+    dx_counts = df['BaseDx'].value_counts().sort_index()
+    outcome_counts = df['FinalTx'].value_counts() * -1.0
+    x = dx_counts.get_values().sum()
+
+    flow = dx_counts.get_values().tolist() + outcome_counts.get_values().tolist()
+    label = dx_counts.index.tolist() + outcome_counts.index.tolist()
+
+    sk = sankey.Sankey(ax, head_angle=120, offset=0.4, scale=1/float(x),
+        unit=" Pt", gap=1.0, margin=0.1,
+        flows= flow,
+        labels=label,
+        orientations=[1, 1, 0, -1, 1, 0, 1, -1, -1, -1, 1])
+
+    #sk.add(flows=[0.05, 0.05, 0.9, -0.20, -0.15, -0.05, -0.50, -0.10],
+    #    labels=['In1', 'In2', 'In3', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
+    #    orientations=[-1, 1, 0, 1, 1, 1, 0, -1])
+
+    sk.finish()
+    # plt.tight_layout()
+    ax.set_title("Percentage Central Apnea and FinalTx of Entire Dataset")
+    ax.set_axis_off()
+    plt.show()
+
 def sankeyTypeOutcome(df):
     fig = plt.figure()  # container object
     ax = plt.axes() # the box we'll draw in
@@ -74,15 +102,13 @@ def sankeyTypeOutcome(df):
 
 def visualizations(df):
     #plt.style.use('seaborn-whitegrid')
-    fig = plt.figure()  # container object
-    ax = plt.axes() # the box we'll draw in
-
-    #sk = sankey.Sankey(ax, head_angle=90, offset=0.1, scale=1.0, unit="'%'",
-    #    format="'%f.0'", gap=0.25,
-    #    flows=[0.05, 0.05, 0.9, -0.20, -0.15, -0.05, -0.50, -0.10],
-    #    labels=['In1', 'In2', 'In3', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
-    #    orientations=[-1, 1, 0, 1, 1, 1, 0, -1])
-    #sk.finish()
+    #fig = plt.figure()  # container object
+    #ax = plt.axes() # the box we'll draw in
+    sns.set()
+    sns.set_palette("husl",3)
+    ax = sns.catplot(x="Dx", y="Count", data=df, kind='bar')
+    plt.title("Etiology of CSA; Multiple Contributors Allowed")
+    ax.set_axis_labels("Etiology", "Number of Patients")
 
     # Severity of OSA by porcent CSAs and Sex
     #ax = sns.boxplot('BaseDx', 'AHI', hue='Sex', data=df)
@@ -93,7 +119,6 @@ def visualizations(df):
     # Vis of distribution of AHIs
     # cleaned_df = df[df['AHI'].notnull()]
     # sns.distplot(cleaned_df['AHI'])
-    plt.tight_layout()
     plt.show()
 
 
@@ -121,11 +146,19 @@ def main():
     # "ProcToASV", "TimeToASV]
     df.to_excel('output.xlsx')
 
-    sankeyTypeOutcome(df)
+    #sankeyTypeFinalTx(df)
     #visualizations(df)
 
     #pieChartBaseDx(df)
-    #printSumByBaseDx(df)
+    printSumByBaseDx(df)
+
+    post_dx_histo = histo_dx_includes(df)
+    print("\n\n---Total of number of patients where each etiology was contributory---")
+    print("---(will some to more than total given mutliple dx's)---\n")
+    print(post_dx_histo)
+
+    hist_df = pd.DataFrame({"Dx":post_dx_histo.index, "Count":post_dx_histo.data})
+    visualizations(hist_df)
 
 if __name__ == '__main__':
     main()

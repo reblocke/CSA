@@ -138,9 +138,16 @@ def arrays_to_df(patient_array):
     # transform PostDx to shorter labels
     df['PostDx'] = df['PostDx'].apply(matchDx).astype('category')
 
-    FinalTxCat = pd.api.types.CategoricalDtype(categories=["cpap", "bipap",
-        "asv (resmed/ respironics)","supplemental oxygen", "no treatment",
-        "other", "ivaps"], ordered=False)
+    df['FinalTx'] = df['FinalTx'].replace(
+        {"cpap": "cpap",
+        "bipap": "bipap",
+        "asv (resmed/ respironics)": "asv",
+        "supplemental oxygen": "O2",
+        "no treatment": "none",
+        "other": "other",
+        "ivaps": "ivaps"})
+    FinalTxCat = pd.api.types.CategoricalDtype(categories=["ivaps", "asv",
+        "bipap", "cpap", "O2", "none", "other"], ordered=True)
     df['FinalTx'] = df['FinalTx'].astype(FinalTxCat)
 
 #    OutcomeCat = pd.api.types.CategoricalDtype(categories=[
@@ -148,8 +155,25 @@ def arrays_to_df(patient_array):
 
     df['Outcome'] = df['Outcome'].astype('category')
 
-    df['ProcToASV'] = df['ProcToASV'].astype('category')
-    df['TimeToASV'] = df['TimeToASV'].astype('category')
+    df['ProcToASV'] = df['ProcToASV'].replace(
+        {"n/a": 'other',
+        "initial treatment": "initial treatment",
+        "after trial of cpap": "after trial of cpap",
+        "after trial of bipap": 'after trial of bipap'
+        })
+    procToASVCat = pd.api.types.CategoricalDtype(categories=['other',
+        "initial treatment", 'after trial of cpap', 'after trial of bipap'],
+        ordered=True)
+    df['ProcToASV'] = df['ProcToASV'].astype(procToASVCat)
+
+    df['TimeToASV'] = df['TimeToASV'].replace(
+        {"n/a": 'other',
+        "0-1 month": 'within 2 mo',
+        "3-6 months": '3-6 mo',
+        ">6 months": '6+ mo'})
+    timeToASVCat = pd.api.types.CategoricalDtype(categories=['other',
+        "within 2 mo", '3-6 mo', '6+ mo'], ordered=True)
+    df['TimeToASV'] = df['TimeToASV'].astype(timeToASVCat)
 
     return df
 

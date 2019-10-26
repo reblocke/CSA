@@ -1,9 +1,9 @@
-from openpyxl import load_workbook
 import pandas as pd
 from ReadExcel import *
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.sankey as sankey
+import matplotlib.gridspec as gridspec
 
 def summary_stats(df):
 
@@ -84,8 +84,8 @@ def sankeyTypeOutcome(df):
     flow = dx_counts.get_values().tolist() + outcome_counts.get_values().tolist()
     label = dx_counts.index.tolist() + outcome_counts.index.tolist()
 
-    sk = sankey.Sankey(ax, head_angle=120, offset=0.3, scale=1/float(x),
-        unit=" patients", gap=0.6, margin=0.1,
+    sk = sankey.Sankey(ax, head_angle=120, offset=0.25, scale=1/float(x),
+        unit=" patients", gap=0.9, margin=0.05,
         flows= flow,
         labels=label,
         orientations=[1, 0, -1, -1, 1, -1, 0, -1, 1])
@@ -125,31 +125,44 @@ def sankeyEtioTx(df):
     plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    fig, axs = plt.subplots(3,2)
-    fig.set_size_inches(15,11)
-    fig.suptitle("Flow (Sankey) Diagram of Etiology of Central Apneas and Final Treatment, Separated by %Central Events")
-    sankeySubPlot(axs[0,0], df, "All Patients w/ Dx of CSA")
-    sankeyLegendPlot(axs[0,1])
-    sankeySubPlot(axs[1,0], df.loc[df['BaseDx'] == "Mainly OSA"],
-        "Patients w/ <10% CSAs")
-    sankeySubPlot(axs[2,0], df.loc[df['BaseDx'] == "Combined OSA/CSA"],
-        "Patients w/ 10-50% CSAs")
-    sankeySubPlot(axs[1,1], df.loc[df['BaseDx'] == "Predominantly CSA"],
-        "Patients w/ 50-90% CSAs")
-    sankeySubPlot(axs[2,1], df.loc[df['BaseDx'] == "Pure CSA"],
-        "Patients w/ >90% CSAs")
-    axs[0,1].set_alpha(0.5)
-    #plt.tight_layout()
-    fig.savefig('test2png.png', dpi=100)
-    plt.show()
+    #fig, axs = plt.subplots(4,2)
+    fig = plt.figure()
+    spec = gridspec.GridSpec(ncols=2, nrows=5, figure=fig)
 
-def sankeyLegendPlot(ax):
-    ax.set_title("Legend", fontsize=10)
-    style = dict(size=7, color='grey')
-    ax.text(1, -1,
-     "Abbreviations:\n\
-     \n\
-     Etiologies\n\
+    f_ax1 = fig.add_subplot(spec[:-3, :])
+    #f_ax2 = fig.add_subplot(spec[0, 1])
+    f_ax3 = fig.add_subplot(spec[2, 0])
+    f_ax4 = fig.add_subplot(spec[2, 1])
+    f_ax5 = fig.add_subplot(spec[3, 0])
+    f_ax6 = fig.add_subplot(spec[3, 1])
+    f_ax7 = fig.add_subplot(spec[4, 0])
+    f_ax8 = fig.add_subplot(spec[4, 1])
+
+    fig.set_size_inches(18,11)
+    fig.suptitle("Flow (Sankey) Diagram of Etiology of Central Apneas and Final Treatment, Separated by %Central Events")
+
+    sankeySubPlot(f_ax1, df, "All Patients with a diagnosis including CSA")
+
+    #f_ax3.set_title("Mainly OSA", fontsize=10)
+    sankeySubPlot(f_ax3, df.loc[df['BaseDx'] == "Mainly OSA"],
+        "<10% CSAs")
+    #f_ax5.set_title("Combined OSA/CSA", fontsize=10)
+    sankeySubPlot(f_ax5, df.loc[df['BaseDx'] == "Combined OSA/CSA"],
+        "10-50% CSAs")
+    #f_ax4.set_title("Predominantly CSA", fontsize=10)
+    sankeySubPlot(f_ax4, df.loc[df['BaseDx'] == "Predominantly CSA"],
+        "50-90% CSAs")
+    #f_ax6.set_title("Pure CSA", fontsize=10)
+    sankeySubPlot(f_ax6, df.loc[df['BaseDx'] == "Pure CSA"],
+        ">90% CSAs")
+
+    #Make Legend + Abbreviations
+    sankeyLegendPlot(f_ax7)
+
+    f_ax8.set_title("Abbreviations", fontsize=10)
+    style = dict(size=7, color='black')
+    f_ax8.text(0.1, -0.1,
+     "Etiologies\n\
      Prim = Primary CSA\n\
      OSA = Central events associated only with Obstructive events\n\
      TE = Treatment Emergent CSA\n\
@@ -158,20 +171,27 @@ def sankeyLegendPlot(ax):
             Dementia, or Neurodegenerative disease\n\
      Med = CSA associated with high-dose opiate use\n\
      \n\
-     Treatments\n\
+Treatments\n\
      Final tx ASV = patients eventually treated using\n\
             Resmed/Respironics ASV, broken into flows by \n\
             prior traetment tried\n\
      O2 = treatment with supplemental oxygen only \n\
             (bleed-in not included)\n", ha="left", **style)
-    sk = sankey.Sankey(ax=ax, scale=0.01, offset=0.2, head_angle=100,
+    f_ax8.set_axis_off()
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+    fig.savefig('test2png.png', dpi=100)
+    #plt.show()
+
+def sankeyLegendPlot(ax):
+    ax.set_title("Legend", fontsize=10)
+    sk = sankey.Sankey(ax=ax, scale=0.01, offset=0.25, head_angle=100,
                     unit=' Patients')
     sk.add(flows=[25, 5, 60, -35, -25, -40],
-               labels=['Etiology 1', 'Etiology 2', 'Etiology 3', 'Treatment 1', 'Treatment 2', 'Treatment 3'],
+               labels=['Etiology 1', 'Etiology 2', 'Etiology 3 (Most Common)', 'Treatment 1', 'Treatment 2', 'Treatment 3 (most common)'],
                orientations=[-1, 1, 0, 1, -1, 0],
                pathlengths=[0.25, 0.25, 0.25, 0.25, 0.25, 0.25],
-               patchlabel="All Patients\nn = 100\nArrow size corresponds to number patients",
-               trunklength=2.0,
+               patchlabel="All Patients\nn = 100\nRelative arrow size corresponds \nto proportion of patients",
+               trunklength=3.0,
                facecolor='lightblue',
                alpha=0.5)  # Arguments to matplotlib.patches.PathPatch()
     sk.finish()
@@ -213,13 +233,13 @@ def sankeySubPlot(ax, df, title):
     label[asvIndex] = ""  # because this will be connected to sub-sankey
 
     sk = sankey.Sankey(ax, head_angle=120, offset=0.3, scale=1/float(x),
-        unit="", gap=0.5, margin=0.1)
+        unit="", gap=1.0, margin=0.05)
     sk.add(flows= flow,
         labels=label,
         orientations=orientation,
         pathlengths=pathlength,
-        patchlabel=title,
-        trunklength=2.0,
+        patchlabel=title + "\nn = " + str(x)+" patients",
+        trunklength=4.0,
         facecolor='lightblue',
         alpha=0.75)
 
@@ -237,13 +257,13 @@ def sankeySubPlot(ax, df, title):
     for i in range(len(ASV_flow) - 2):
         if i%2 == 1:
             ASV_orientation.append(1)
-            if (i//2)%2 == 0:  # alternate (per side) pathlengths
+            if (i//2)%2 == 1:  # alternate (per side) pathlengths
                 ASV_pathlength.append(0.5)
             else:
                 ASV_pathlength.append(0.15)
         else:
             ASV_orientation.append(-1)
-            if (i//2)%2 == 0:
+            if (i//2)%2 == 1:
                 ASV_pathlength.append(0.5)
             else:
                 ASV_pathlength.append(0.15)
@@ -255,14 +275,11 @@ def sankeySubPlot(ax, df, title):
         prior = 0,
         connect = (asvIndex, 0),
         patchlabel=" Final tx ASV",
-        trunklength= 1.6,
+        trunklength= 2.6,
         facecolor='lightyellow',
         alpha=.75)
 
-    # Todo: add trunk, clean db (N/A proc to ASV), add legend, make diagrams stratified by %CSA
-
     sk.finish()
-    # plt.tight_layout()
     ax.set_axis_off()
     return ax
 

@@ -113,9 +113,9 @@ def vis_hist_etio(df):
 
 
 def sankeyEtioTx(df):
-    SMALL_SIZE = 7
+    SMALL_SIZE = 8
     MEDIUM_SIZE = 10
-    BIGGER_SIZE = 12
+    BIGGER_SIZE = 14
 
     plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
     plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
@@ -167,16 +167,13 @@ def sankeyEtioTx(df):
      OSA = Central events associated only with Obstructive events\n\
      TE = Treatment Emergent CSA\n\
      CV = CSA associated with HFrEF, HFpEF, or AFib\n\
-     CNS = CSA associated with CVA, TBI, Mass Lesion,\n\
-            Dementia, or Neurodegenerative disease\n\
+     CNS = CSA associated with CVA, TBI, Mass Lesion, Dementia, or Neurodegenerative disease\n\
      Med = CSA associated with high-dose opiate use\n\
      \n\
 Treatments\n\
-     Final tx ASV = patients eventually treated using\n\
-            Resmed/Respironics ASV, broken into flows by \n\
-            prior traetment tried\n\
-     O2 = treatment with supplemental oxygen only \n\
-            (bleed-in not included)\n", ha="left", **style)
+     Final tx ASV = patients eventually treated using Resmed/Respironics ASV, broken into flows by prior traetment tried\n\
+     O2 = treatment with supplemental oxygen only (bleed-in not included)\n",
+     ha="left", **style)
     f_ax8.set_axis_off()
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     fig.savefig('test2png.png', dpi=100)
@@ -184,14 +181,14 @@ Treatments\n\
 
 def sankeyLegendPlot(ax):
     ax.set_title("Legend", fontsize=10)
-    sk = sankey.Sankey(ax=ax, scale=0.01, offset=0.25, head_angle=100,
+    sk = sankey.Sankey(ax=ax, scale=0.01, offset=0.3, head_angle=100,
                     unit=' Patients')
     sk.add(flows=[25, 5, 60, -35, -25, -40],
                labels=['Etiology 1', 'Etiology 2', 'Etiology 3 (Most Common)', 'Treatment 1', 'Treatment 2', 'Treatment 3 (most common)'],
                orientations=[-1, 1, 0, 1, -1, 0],
                pathlengths=[0.25, 0.25, 0.25, 0.25, 0.25, 0.25],
                patchlabel="All Patients\nn = 100\nRelative arrow size corresponds \nto proportion of patients",
-               trunklength=3.0,
+               trunklength=5.0,
                facecolor='lightblue',
                alpha=0.5)  # Arguments to matplotlib.patches.PathPatch()
     sk.finish()
@@ -220,26 +217,26 @@ def sankeySubPlot(ax, df, title):
             if i%2 == 1:
                 orientation.append(1)
                 if (i//2)%2 == 0:  # alternate (per side) pathlengths
-                    pathlength.append(0.5)
+                    pathlength.append(0.85)
                 else:
                     pathlength.append(0.15)
             else:
                 orientation.append(-1)
                 if (i//2)%2 == 0:
-                    pathlength.append(0.5)
+                    pathlength.append(0.85)
                 else:
                     pathlength.append(0.15)
     asvIndex = label.index("asv")
     label[asvIndex] = ""  # because this will be connected to sub-sankey
 
     sk = sankey.Sankey(ax, head_angle=120, offset=0.3, scale=1/float(x),
-        unit="", gap=1.0, margin=0.05)
+        unit="", gap=1.6, margin=0.05)
     sk.add(flows= flow,
         labels=label,
         orientations=orientation,
         pathlengths=pathlength,
         patchlabel=title + "\nn = " + str(x)+" patients",
-        trunklength=4.0,
+        trunklength=6.0,
         facecolor='lightblue',
         alpha=0.75)
 
@@ -275,7 +272,7 @@ def sankeySubPlot(ax, df, title):
         prior = 0,
         connect = (asvIndex, 0),
         patchlabel=" Final tx ASV",
-        trunklength= 2.6,
+        trunklength= 4.5,
         facecolor='lightyellow',
         alpha=.75)
 

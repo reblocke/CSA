@@ -98,7 +98,7 @@ def histo_dx_includes(df):
 
     # TODO: need to find and delete combination TE + other etiology postDx's
     histo = pd.Series({"TE":0,
-        "OSA":0,
+        "OSA-CSA":0,
         "CV":0,
         "CNS":0,
         "Med":0,
@@ -184,7 +184,7 @@ def matchDx(pt_dx):
     rep = {"te csa": "+TE",
         "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"+CNS",
         "primary csa (idiopathic csa)":"+Prim",
-        "osa-associated":"+OSA",
+        "osa-associated":"+OSA-CSA",
         "csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)":"+Med",
         "csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)":"+CV"}
     for dx in pt_dx.split(","):

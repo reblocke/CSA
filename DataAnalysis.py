@@ -90,10 +90,6 @@ def sankeyTypeOutcome(df):
         labels=label,
         orientations=[1, 0, -1, -1, 1, -1, 0, -1, 1])
 
-    #sk.add(flows=[0.05, 0.05, 0.9, -0.20, -0.15, -0.05, -0.50, -0.10],
-    #    labels=['In1', 'In2', 'In3', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
-    #    orientations=[-1, 1, 0, 1, 1, 1, 0, -1])
-
     sk.finish()
     # plt.tight_layout()
     ax.set_title("Percentage Central Apnea and Outcome of Entire Dataset")
@@ -104,6 +100,8 @@ def sankeyTypeOutcome(df):
 def vis_hist_etio(df):
     post_dx_histo = histo_dx_includes(df)
     hist_df = pd.DataFrame({"Dx":post_dx_histo.index, "Count":post_dx_histo.data})
+    print(hist_df)
+    hist_df = hist_df.drop(1)
     sns.set()
     sns.set_palette("husl",3)
     ax = sns.catplot(x="Dx", y="Count", data=hist_df, kind='bar')
@@ -325,16 +323,16 @@ def main():
     df.to_excel('output.xlsx')
 
     #sankeyTypeFinalTx(df)
-    #vis_hist_etio(df)
+    vis_hist_etio(df)
 
     #pieChartBaseDx(df)
-    printSumByBaseDx(df)
+    #printSumByBaseDx(df)
 
     print("\n\n---Total of number of patients where each etiology was contributory---")
     print("---(will some to more than total given mutliple dx's)---\n")
 
     #visualizations(df)
-    sankeyEtioTx(df)
+    #sankeyEtioTx(df)
 
 if __name__ == '__main__':
     main()

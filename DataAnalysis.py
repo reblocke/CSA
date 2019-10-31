@@ -106,7 +106,8 @@ def vis_hist_etio(df):
     sns.set_palette("husl",3)
     ax = sns.catplot(x="Dx", y="Count", data=hist_df, kind='bar')
     plt.title("Etiology of CSA; Multiple Contributors Allowed")
-    ax.set_axis_labels("Etiology", "Number of Patients")
+    ax.set_axis_labels("Etiologies of Central Sleep Apnea", "Number of Patients")
+    plt.legend()
     plt.show()
 
 

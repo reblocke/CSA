@@ -97,12 +97,12 @@ def histo_dx_includes(df):
     category counts"""
 
     # TODO: need to find and delete combination TE + other etiology postDx's
-    histo = pd.Series({"TE":0,
+    histo = pd.Series({"TECSA":0,
         "OSA-CSA":0,
-        "CV":0,
-        "CNS":0,
-        "Med":0,
-        "Prim":0})
+        "Cardiac":0,
+        "Neurologic":0,
+        "Medication":0,
+        "Primary":0})
 
     for dx in df['PostDx']:
         dxstr = str(dx)
@@ -181,12 +181,12 @@ def arrays_to_df(patient_array):
 def matchDx(pt_dx):
     """match the diagnosis up with the shorter labels"""
     new_dx = ""
-    rep = {"te csa": "+TE",
-        "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"+CNS",
-        "primary csa (idiopathic csa)":"+Prim",
+    rep = {"te csa": "+TECSA",
+        "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"+Neurologic",
+        "primary csa (idiopathic csa)":"+Primary",
         "osa-associated":"+OSA-CSA",
-        "csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)":"+Med",
-        "csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)":"+CV"}
+        "csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)":"+Medication",
+        "csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)":"+Cardiac"}
     for dx in pt_dx.split(","):
         new_dx = new_dx + rep[dx.strip().lower()]
     return new_dx[1:]  #-first +

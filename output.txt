@@ -1,5 +1,3 @@
-
-
 ----AMONG THE ENTIRE DATASET----
 
 
@@ -15,6 +13,30 @@ min       20.000000
 max       91.000000
 Name: Age, dtype: float64
 
+Sex Counts:
+
+male      431
+female    186
+Name: Sex, dtype: int64
+
+Race Counts:
+
+not hispanic/latino    363
+white                  212
+hispanic                27
+asian                    6
+pacific islander         4
+native american          3
+black                    2
+Name: Race, dtype: int64
+
+Smoking Counts:
+
+never      386
+former     176
+current     53
+Name: Smoking, dtype: int64
+
 BMI Summary Statistics:
 
 count    608.000000
@@ -26,6 +48,99 @@ min       18.000000
 75%       36.525000
 max       72.500000
 Name: BMI, dtype: float64
+
+Comorbidity Combination Counts:
+
+none                141
+htn                 137
+psych               109
+htn+psych            84
+dm+htn               71
+dm+htn+psych         36
+dm                   11
+dm+psych             10
+ckd+htn               8
+ckd+dm+htn            4
+ckd+htn+psych         2
+hiv                   1
+ckd+dm+htn+psych      1
+ckd+dm                1
+ckd                   1
+Name: Comorb, dtype: int64
+
+Comorbidity Counts:
+
+htn      343
+psych    242
+none     141
+dm       134
+ckd       17
+hiv        1
+dtype: int64
+
+Heart Combination Counts:
+
+none               401
+cad                 55
+afib                47
+hfpef               30
+cad+hfpef           20
+afib+hfpef          15
+afib+cad            14
+afib+cad+hfpef      10
+hfref                7
+cad+hfref            7
+afib+hfref           4
+afib+cad+hfref       3
+other+other          1
+other                1
+cad+other            1
+cad+hfref+other      1
+Name: Heart, dtype: int64
+
+Heart Counts:
+
+none     401
+cad      111
+afib      93
+hfpef     75
+hfref     22
+other      4
+dtype: int64
+
+CNS Combination Counts:
+
+none                          504
+cva                            53
+neurodegenerative              19
+tbi                            10
+dementia                        7
+mass                            5
+seizures                        4
+neurodegenerative+tbi           2
+cva+neurodegenerative           2
+cva+dementia                    2
+chiari                          2
+mass+seizures                   1
+dementia+neurodegenerative      1
+cva+tbi                         1
+cva+seizures+tbi                1
+cva+other                       1
+cva+cva+cva+seizures            1
+other+seizures                  1
+Name: CNS, dtype: int64
+
+CNS Counts:
+
+none                 504
+cva                   61
+neurodegenerative     24
+dementia              10
+seizures               8
+mass                   6
+other                  2
+chiari                 2
+dtype: int64
 
 AHI Summary Statistics:
 
@@ -47,26 +162,34 @@ Predominantly CSA     82
 Pure CSA              22
 Name: BaseDx, dtype: int64
 
-Post Dx Counts:
+Etiology Combination Counts:
 
 TECSA                            236
 Cardiac                          106
 OSA-CSA                          105
 Neurologic                        64
 Medication                        55
-Cardiac+Neurologic                19
+Cardiac+Neurologic                24
 Primary                           12
-Neurologic+Cardiac                 5
-Medication+Neurologic              5
+Medication+Neurologic              7
 Cardiac+Medication                 3
-Neurologic+Medication              2
-Medication+Cardiac+Neurologic      2
-TECSA+Neurologic                   1
-TECSA+Cardiac                      1
+Cardiac+Medication+Neurologic      2
 Primary+TECSA                      1
+Neurologic+TECSA                   1
+Cardiac+TECSA                      1
 Name: PostDx, dtype: int64
 
-Final Tx Counts:
+Etiology Counts:
+
+TECSA         239
+Cardiac       136
+OSA-CSA       105
+Neurologic     98
+Medication     67
+Primary        13
+dtype: int64
+
+Final Treatment Counts:
 
 cpap     312
 asv      205
@@ -103,6 +226,26 @@ min      26.000000
 max      73.000000
 Name: Age, dtype: float64
 
+Sex Counts:
+
+male      17
+female     5
+Name: Sex, dtype: int64
+
+Race Counts:
+
+not hispanic/latino    14
+white                   7
+hispanic                1
+Name: Race, dtype: int64
+
+Smoking Counts:
+
+never      11
+former      6
+current     5
+Name: Smoking, dtype: int64
+
 BMI Summary Statistics:
 
 count    22.000000
@@ -114,6 +257,99 @@ min      22.000000
 75%      35.630000
 max      50.400000
 Name: BMI, dtype: float64
+
+Comorbidity Combination Counts:
+
+none                6
+psych               5
+htn+psych           4
+htn                 3
+dm+psych            1
+dm+htn+psych        1
+dm+htn              1
+dm                  1
+hiv                 0
+ckd+htn+psych       0
+ckd+htn             0
+ckd+dm+htn+psych    0
+ckd+dm+htn          0
+ckd+dm              0
+ckd                 0
+Name: Comorb, dtype: int64
+
+Comorbidity Counts:
+
+psych    11
+htn       9
+none      6
+dm        4
+hiv       0
+ckd       0
+dtype: int64
+
+Heart Combination Counts:
+
+none               11
+afib                3
+hfpef               2
+hfref               1
+cad+hfref           1
+cad+hfpef           1
+cad                 1
+afib+cad+hfpef      1
+afib+cad            1
+other+other         0
+other               0
+cad+other           0
+cad+hfref+other     0
+afib+hfref          0
+afib+hfpef          0
+afib+cad+hfref      0
+Name: Heart, dtype: int64
+
+Heart Counts:
+
+none     11
+afib      5
+cad       5
+hfpef     4
+hfref     2
+other     0
+dtype: int64
+
+CNS Combination Counts:
+
+none                          17
+cva                            2
+chiari                         1
+neurodegenerative              1
+seizures                       1
+cva+seizures+tbi               0
+cva+cva+cva+seizures           0
+cva+dementia                   0
+cva+neurodegenerative          0
+cva+other                      0
+tbi                            0
+cva+tbi                        0
+dementia+neurodegenerative     0
+mass                           0
+mass+seizures                  0
+neurodegenerative+tbi          0
+other+seizures                 0
+dementia                       0
+Name: CNS, dtype: int64
+
+CNS Counts:
+
+none                 17
+cva                   2
+chiari                1
+seizures              1
+neurodegenerative     1
+other                 0
+mass                  0
+dementia              0
+dtype: int64
 
 AHI Summary Statistics:
 
@@ -135,26 +371,34 @@ Combined OSA/CSA      0
 Mainly OSA            0
 Name: BaseDx, dtype: int64
 
-Post Dx Counts:
+Etiology Combination Counts:
 
 Medication                       7
 Cardiac                          7
 Primary                          3
 Neurologic                       3
-Neurologic+Cardiac               1
-Cardiac+Neurologic               1
-TECSA+Neurologic                 0
-TECSA+Cardiac                    0
+Cardiac+Neurologic               2
 TECSA                            0
 Primary+TECSA                    0
 OSA-CSA                          0
-Neurologic+Medication            0
+Neurologic+TECSA                 0
 Medication+Neurologic            0
-Medication+Cardiac+Neurologic    0
+Cardiac+TECSA                    0
+Cardiac+Medication+Neurologic    0
 Cardiac+Medication               0
 Name: PostDx, dtype: int64
 
-Final Tx Counts:
+Etiology Counts:
+
+Cardiac       9
+Medication    7
+Neurologic    5
+Primary       3
+OSA-CSA       0
+TECSA         0
+dtype: int64
+
+Final Treatment Counts:
 
 asv      13
 cpap      4
@@ -191,6 +435,29 @@ min      25.000000
 max      88.000000
 Name: Age, dtype: float64
 
+Sex Counts:
+
+male      58
+female    24
+Name: Sex, dtype: int64
+
+Race Counts:
+
+not hispanic/latino    40
+white                  35
+hispanic                4
+pacific islander        1
+asian                   1
+native american         1
+Name: Race, dtype: int64
+
+Smoking Counts:
+
+never      52
+former     24
+current     6
+Name: Smoking, dtype: int64
+
 BMI Summary Statistics:
 
 count    81.000000
@@ -202,6 +469,99 @@ min      18.700000
 75%      34.590000
 max      72.200000
 Name: BMI, dtype: float64
+
+Comorbidity Combination Counts:
+
+htn                 20
+none                19
+htn+psych           16
+psych               12
+dm+htn               7
+dm+htn+psych         5
+hiv                  1
+dm+psych             1
+ckd+htn              1
+dm                   0
+ckd+htn+psych        0
+ckd+dm+htn+psych     0
+ckd+dm+htn           0
+ckd+dm               0
+ckd                  0
+Name: Comorb, dtype: int64
+
+Comorbidity Counts:
+
+htn      49
+psych    34
+none     19
+dm       13
+hiv       1
+ckd       1
+dtype: int64
+
+Heart Combination Counts:
+
+none               47
+hfpef               6
+cad+hfpef           6
+cad                 5
+afib                5
+afib+cad            3
+cad+hfref           2
+afib+hfpef          2
+other               1
+hfref               1
+cad+hfref+other     1
+afib+hfref          1
+afib+cad+hfref      1
+afib+cad+hfpef      1
+other+other         0
+cad+other           0
+Name: Heart, dtype: int64
+
+Heart Counts:
+
+none     47
+cad      19
+hfpef    15
+afib     13
+hfref     6
+other     2
+dtype: int64
+
+CNS Combination Counts:
+
+none                          68
+cva                            7
+tbi                            3
+neurodegenerative              2
+cva+other                      1
+chiari                         1
+mass+seizures                  0
+mass                           0
+dementia+neurodegenerative     0
+seizures                       0
+cva+tbi                        0
+cva+seizures+tbi               0
+neurodegenerative+tbi          0
+cva+neurodegenerative          0
+cva+dementia                   0
+cva+cva+cva+seizures           0
+other+seizures                 0
+dementia                       0
+Name: CNS, dtype: int64
+
+CNS Counts:
+
+none                 68
+cva                   8
+neurodegenerative     2
+other                 1
+chiari                1
+mass                  0
+seizures              0
+dementia              0
+dtype: int64
 
 AHI Summary Statistics:
 
@@ -223,7 +583,7 @@ Combined OSA/CSA      0
 Mainly OSA            0
 Name: BaseDx, dtype: int64
 
-Post Dx Counts:
+Etiology Combination Counts:
 
 Cardiac                          25
 Medication                       13
@@ -231,18 +591,26 @@ OSA-CSA                          12
 Neurologic                       10
 Primary                           8
 TECSA                             5
-Medication+Neurologic             2
+Medication+Neurologic             3
 Cardiac+Neurologic                2
-TECSA+Neurologic                  1
-TECSA+Cardiac                     1
 Primary+TECSA                     1
-Neurologic+Medication             1
+Neurologic+TECSA                  1
+Cardiac+TECSA                     1
 Cardiac+Medication                1
-Neurologic+Cardiac                0
-Medication+Cardiac+Neurologic     0
+Cardiac+Medication+Neurologic     0
 Name: PostDx, dtype: int64
 
-Final Tx Counts:
+Etiology Counts:
+
+Cardiac       29
+Medication    17
+Neurologic    16
+OSA-CSA       12
+Primary        9
+TECSA          8
+dtype: int64
+
+Final Treatment Counts:
 
 asv      36
 cpap     29
@@ -278,6 +646,29 @@ min       27.000000
 max       88.000000
 Name: Age, dtype: float64
 
+Sex Counts:
+
+male      118
+female     60
+Name: Sex, dtype: int64
+
+Race Counts:
+
+not hispanic/latino    104
+white                   58
+hispanic                11
+pacific islander         2
+asian                    2
+native american          1
+Name: Race, dtype: int64
+
+Smoking Counts:
+
+never      100
+former      62
+current     15
+Name: Smoking, dtype: int64
+
 BMI Summary Statistics:
 
 count    175.000000
@@ -289,6 +680,99 @@ min       18.500000
 75%       37.800000
 max       66.000000
 Name: BMI, dtype: float64
+
+Comorbidity Combination Counts:
+
+psych               37
+htn                 33
+none                32
+htn+psych           28
+dm+htn              23
+dm+htn+psych        11
+dm                   5
+dm+psych             4
+ckd+htn              2
+ckd+dm+htn           2
+ckd+dm               1
+hiv                  0
+ckd+htn+psych        0
+ckd+dm+htn+psych     0
+ckd                  0
+Name: Comorb, dtype: int64
+
+Comorbidity Counts:
+
+htn      99
+psych    80
+dm       46
+none     32
+ckd       5
+hiv       0
+dtype: int64
+
+Heart Combination Counts:
+
+none               118
+afib                20
+cad                 16
+hfpef                6
+cad+hfpef            6
+afib+hfpef           6
+hfref                2
+afib+cad             2
+afib+hfref           1
+afib+cad+hfpef       1
+other+other          0
+other                0
+cad+other            0
+cad+hfref+other      0
+cad+hfref            0
+afib+cad+hfref       0
+Name: Heart, dtype: int64
+
+Heart Counts:
+
+none     118
+afib      30
+cad       25
+hfpef     19
+hfref      3
+other      0
+dtype: int64
+
+CNS Combination Counts:
+
+none                          140
+cva                            20
+neurodegenerative               8
+tbi                             3
+mass                            2
+dementia                        2
+cva+tbi                         1
+cva+seizures+tbi                1
+cva+dementia                    1
+mass+seizures                   0
+neurodegenerative+tbi           0
+dementia+neurodegenerative      0
+seizures                        0
+cva+other                       0
+cva+neurodegenerative           0
+cva+cva+cva+seizures            0
+other+seizures                  0
+chiari                          0
+Name: CNS, dtype: int64
+
+CNS Counts:
+
+none                 140
+cva                   23
+neurodegenerative      8
+dementia               3
+mass                   2
+seizures               1
+other                  0
+chiari                 0
+dtype: int64
 
 AHI Summary Statistics:
 
@@ -310,26 +794,34 @@ Predominantly CSA      0
 Combined OSA/CSA       0
 Name: BaseDx, dtype: int64
 
-Post Dx Counts:
+Etiology Combination Counts:
 
 TECSA                            121
 Cardiac                           17
 Neurologic                        12
+Cardiac+Neurologic                11
 OSA-CSA                            8
-Cardiac+Neurologic                 8
 Medication                         7
-Neurologic+Cardiac                 3
-Medication+Cardiac+Neurologic      1
+Cardiac+Medication+Neurologic      1
 Cardiac+Medication                 1
-TECSA+Neurologic                   0
-TECSA+Cardiac                      0
 Primary+TECSA                      0
 Primary                            0
-Neurologic+Medication              0
+Neurologic+TECSA                   0
 Medication+Neurologic              0
+Cardiac+TECSA                      0
 Name: PostDx, dtype: int64
 
-Final Tx Counts:
+Etiology Counts:
+
+TECSA         121
+Cardiac        30
+Neurologic     24
+Medication      9
+OSA-CSA         8
+Primary         0
+dtype: int64
+
+Final Treatment Counts:
 
 cpap     109
 asv       34
@@ -365,6 +857,30 @@ min       20.000000
 max       91.000000
 Name: Age, dtype: float64
 
+Sex Counts:
+
+male      238
+female     97
+Name: Sex, dtype: int64
+
+Race Counts:
+
+not hispanic/latino    205
+white                  112
+hispanic                11
+asian                    3
+black                    2
+pacific islander         1
+native american          1
+Name: Race, dtype: int64
+
+Smoking Counts:
+
+never      223
+former      84
+current     27
+Name: Smoking, dtype: int64
+
 BMI Summary Statistics:
 
 count    330.000000
@@ -376,6 +892,99 @@ min       18.000000
 75%       35.992500
 max       72.500000
 Name: BMI, dtype: float64
+
+Comorbidity Combination Counts:
+
+none                84
+htn                 81
+psych               55
+dm+htn              40
+htn+psych           36
+dm+htn+psych        19
+dm                   5
+ckd+htn              5
+dm+psych             4
+ckd+htn+psych        2
+ckd+dm+htn           2
+ckd+dm+htn+psych     1
+ckd                  1
+hiv                  0
+ckd+dm               0
+Name: Comorb, dtype: int64
+
+Comorbidity Counts:
+
+htn      186
+psych    117
+none      84
+dm        71
+ckd       11
+hiv        0
+dtype: int64
+
+Heart Combination Counts:
+
+none               225
+cad                 33
+afib                19
+hfpef               16
+afib+cad             8
+cad+hfpef            7
+afib+hfpef           7
+afib+cad+hfpef       7
+cad+hfref            4
+hfref                3
+afib+hfref           2
+afib+cad+hfref       2
+other+other          1
+cad+other            1
+other                0
+cad+hfref+other      0
+Name: Heart, dtype: int64
+
+Heart Counts:
+
+none     225
+cad       62
+afib      45
+hfpef     37
+hfref     11
+other      2
+dtype: int64
+
+CNS Combination Counts:
+
+none                          279
+cva                            24
+neurodegenerative               8
+dementia                        5
+tbi                             4
+mass                            3
+seizures                        3
+neurodegenerative+tbi           2
+cva+neurodegenerative           2
+mass+seizures                   1
+dementia+neurodegenerative      1
+cva+dementia                    1
+cva+cva+cva+seizures            1
+other+seizures                  1
+cva+tbi                         0
+cva+seizures+tbi                0
+cva+other                       0
+chiari                          0
+Name: CNS, dtype: int64
+
+CNS Counts:
+
+none                 279
+cva                   28
+neurodegenerative     13
+dementia               7
+seizures               6
+mass                   4
+other                  1
+chiari                 0
+dtype: int64
 
 AHI Summary Statistics:
 
@@ -397,26 +1006,34 @@ Predominantly CSA      0
 Mainly OSA             0
 Name: BaseDx, dtype: int64
 
-Post Dx Counts:
+Etiology Combination Counts:
 
 TECSA                            110
 OSA-CSA                           85
 Cardiac                           57
 Neurologic                        39
 Medication                        28
-Cardiac+Neurologic                 8
-Medication+Neurologic              3
+Cardiac+Neurologic                 9
+Medication+Neurologic              4
 Primary                            1
-Neurologic+Medication              1
-Neurologic+Cardiac                 1
-Medication+Cardiac+Neurologic      1
+Cardiac+Medication+Neurologic      1
 Cardiac+Medication                 1
-TECSA+Neurologic                   0
-TECSA+Cardiac                      0
 Primary+TECSA                      0
+Neurologic+TECSA                   0
+Cardiac+TECSA                      0
 Name: PostDx, dtype: int64
 
-Final Tx Counts:
+Etiology Counts:
+
+TECSA         110
+OSA-CSA        85
+Cardiac        68
+Neurologic     53
+Medication     34
+Primary         1
+dtype: int64
+
+Final Treatment Counts:
 
 cpap     170
 asv      122

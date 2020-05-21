@@ -15,13 +15,13 @@ def sheet_to_arrays(excel_sheet):
     # DOB_Column = 3
     Age_Column = 4 # Age at diag sleep study
     Sex_Column = 5
-    # Race_Columnn = 6
+    Race_Column = 6
     # Zip_Column = 7
     BMI_Column = 8
-    # Smoking_Column = 9
-    # Comorb_Column = 10 (split?)
-    # Heart_Column = 11 (split?)
-    # CNS_Coluimn = 12 (split?)
+    Smoking_Column = 9
+    Comorb_Column = 10
+    Heart_Column = 11
+    CNS_Column = 12
     Base_Dx_Column = 13
     AHI_Column = 14 # Diagnostic AHI
     Post_Dx_Column = 15
@@ -54,9 +54,34 @@ def sheet_to_arrays(excel_sheet):
             print("Sex Column Error: Row " + str(i))
             row.append(None)
         try:
+            row.append(patient[Race_Column].value.lower()) #Make discrete?
+        except(ValueError, TypeError, AttributeError):
+            print("Race Column Error: Row " + str(i))
+            row.append(None)
+        try:
+            row.append(patient[Smoking_Column].value.lower())  # Make discrete?
+        except(ValueError, TypeError, AttributeError):
+            print("Smoking Column Error: Row " + str(i))
+            row.append(None)
+        try:
             row.append(float(patient[BMI_Column].value))
         except(ValueError, TypeError, AttributeError):
             print("BMI Column Error: Row " + str(i))
+            row.append(None)
+        try:
+            row.append(patient[Comorb_Column].value.lower().strip())
+        except(ValueError, TypeError, AttributeError):
+            print("Comorbidity Column Error: Row " + str(i))
+            row.append(None)
+        try:
+            row.append(patient[Heart_Column].value.lower().strip())
+        except(ValueError, TypeError, AttributeError):
+            print("Heart Column Error: Row " + str(i))
+            row.append(None)
+        try:
+            row.append(patient[CNS_Column].value.lower().strip())
+        except(ValueError, TypeError, AttributeError):
+            print("CNS Column Error: Row " + str(i))
             row.append(None)
         try:
             row.append(float(patient[AHI_Column].value))
@@ -102,7 +127,7 @@ def sheet_to_arrays(excel_sheet):
 
 
 def histo_dx_includes(df):
-    """Returns a historgram (pandas series) of diagnosis where a post-titration diagnosis of
+    """Returns a histogram (pandas series) of diagnosis where a post-titration diagnosis of
     w/ multiple factors (e.g. Meds+CV) each are counted toward their respective
     category counts"""
 
@@ -119,7 +144,65 @@ def histo_dx_includes(df):
         for cat in histo.index:
             if cat in dxstr:
                 histo[cat] +=1
-    return histo
+    return histo.sort_values(ascending=False)
+
+def histo_comorbs_includes(df):
+    """Returns a histogram (pandas series) of comorbidities where a comorbidity of
+    w/ multiple factors (e.g. CKD+Psych) each are counted toward their respective
+    category counts"""
+    histo = pd.Series({"none":0,
+        "htn":0,
+        "dm":0,
+        "ckd":0,
+        "psych":0,
+        "hiv":0})
+
+    for comorb in df['Comorb']:
+        comorb_str = str(comorb)
+        for cat in histo.index:
+            if cat in comorb_str:
+                histo[cat] +=1
+    return histo.sort_values(ascending=False)
+
+def histo_heart_includes(df):
+    """Returns a histogram (pandas series) of heart comorbidities where a comorbidity of
+    w/ multiple factors (e.g. afib and cad) each are counted toward their respective
+    category counts"""
+    histo = pd.Series({"none":0,
+        "cad":0,
+        "afib":0,
+        "hfpef":0,
+        "hfref":0,
+        "other":0})
+
+    for heart in df['Heart']:
+        heart_str = str(heart)
+        for cat in histo.index:
+            if cat in heart_str:
+                histo[cat] +=1
+    return histo.sort_values(ascending=False)
+
+
+def histo_cns_includes(df):
+    """Returns a histogram (pandas series) of cns comorbidities where a comorbidity of
+    w/ multiple factors (e.g. cva and dementia) each are counted toward their respective
+    category counts"""
+    histo = pd.Series({"none":0,
+        "cva":0,
+        "neurodegenerative":0,
+        "dementia":0,
+        "seizures":0,
+        "mass":0,
+        "chiari":0,
+        "other":0})
+
+    for cns in df['CNS']:
+        cns_str = str(cns)
+        for cat in histo.index:
+            if cat in cns_str:
+                histo[cat] +=1
+    return histo.sort_values(ascending=False)
+
 
 def arrays_to_df(patient_array):
     """takes the database in array form and outputs a dataframe with variables
@@ -128,18 +211,28 @@ def arrays_to_df(patient_array):
     ['ID', Age', 'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
     "ProcToASV", "TimeToASV]"""
 
-    df = pd.DataFrame.from_records(patient_array, columns=['ID', 'Age',
-        'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
-        "ProcToASV", "TimeToASV"])
+    df = pd.DataFrame.from_records(patient_array, columns=['ID', 'Age',  'Sex', 'Race', 'Smoking', 'BMI', 'Comorb',
+                                                           'Heart', 'CNS', 'AHI', 'BaseDx', 'PostDx', 'FinalTx',
+                                                           'Outcome', "ProcToASV", "TimeToASV"])
 
     df['Sex'] = df['Sex'].astype('category')
+
+    df['Race'] = df['Race'].astype('category')
+    df['Race'] = df['Race'].replace({"not hispanic/ latino": 'not hispanic/latino'})
+
+    df['Smoking'] = df['Smoking'].astype('category')
+
+    df['Comorb'] = df['Comorb'].apply(matchComorbs).astype('category')
+
+    df['Heart'] = df['Heart'].apply(matchHeart).astype('category')
+
+    df['CNS'] = df['CNS'].apply(matchCNS).astype('category')
 
     df['BaseDx'] = df['BaseDx'].replace(
         {"Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower(): 'Mainly OSA',
         "Combined OSA/CSA (CSA 10-50%)".lower(): 'Combined OSA/CSA',
         "Predominantly CSA (>50% CSA)".lower(): 'Predominantly CSA',
         "Pure CSA (<10% OSA)".lower(): 'Pure CSA'})
-
     BaseDxCat = pd.api.types.CategoricalDtype(categories=[
         'Mainly OSA', 'Combined OSA/CSA', 'Predominantly CSA',
         'Pure CSA'], ordered=True)
@@ -190,18 +283,72 @@ def arrays_to_df(patient_array):
 
 def matchDx(pt_dx):
     """match the diagnosis up with the shorter labels"""
-    # print(pt_dx)
-    new_dx = ""
-    rep = {"te csa": "+TECSA",
-        "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"+Neurologic",
-        "primary csa (idiopathic csa)":"+Primary",
-        "osa-associated":"+OSA-CSA",
-        "csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)":"+Medication",
-        "csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)":"+Cardiac"}
+    new_dx = list()
+    rep = {"te csa": "TECSA",
+        "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"Neurologic",
+        "primary csa (idiopathic csa)":"Primary",
+        "osa-associated":"OSA-CSA",
+        "csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)":"Medication",
+        "csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)":"Cardiac"}
     for dx in pt_dx.split(","):
-        new_dx = new_dx + rep[dx.strip().lower()]
-    return new_dx[1:]  #-first +
+        new_dx.append(rep[dx.strip().lower()])  # transform labels
+    return '+'.join(sorted(new_dx))   # make sure that order doesn't matter, join iterable list
 
+
+def matchComorbs(pt_comorb):
+    """match the comorbidities up with the shorter labels"""
+    new_comorb = list()
+    rep = {"htn": "htn",
+           "hiv": "hiv",
+           "dm": "dm",
+           "psychiatric": "psych",
+           "renal failure (creatinine>2mg/dl/ use of rrt/ cr clearance <30ml/min": "ckd",
+           "none": "none"}
+    for comorb in pt_comorb.split(","):
+        new_comorb.append(rep[comorb.strip().lower()])
+    return '+'.join(sorted(new_comorb))
+
+def matchHeart(pt_heart):
+    """match the heart comorbidities up with the shorter labels"""
+    new_heart = list()
+    rep = {"cad": "cad",
+           "atrial fibrillation": "afib",
+           "chf- hfpef (>45%)": "hfpef",
+           "chf- hfref (<45%)": "hfref",
+           "pacs": "other",
+           "svt": "other",
+           "atrial myxoma": "other",
+           "cardiac tx": "other",
+           "avnrt": "other",
+           "none": "none"}
+    for heart in pt_heart.split(","):
+        new_heart.append(rep[heart.strip().lower()])
+    return '+'.join(sorted(new_heart))
+
+def matchCNS(pt_cns):
+    """match the heart comorbidities up with the shorter labels"""
+    new_cns = list()
+    rep = {"ischemic stroke": "cva",
+           "neurodegenerative disease": "neurodegenerative",
+           "tbi": "tbi",
+           "dementia": "dementia",
+           "seizure disorder": "seizures",
+           "mass lesion": "mass",
+           "tia": "cva",
+           "chiari malformation": "chiari",
+           "traumatic brain injury": "tbi",
+           "ms": "neurodegenerative",
+           "epilepsy": "seizures",
+           "pituitary adenoma": "mass",
+           "hemorrhagic stroke": "cva",
+           "tumor": "mass",
+           "other": "other",
+           "cerebral palsy": "other",
+           "seizures": "seizures",
+           "none": "none"}
+    for cns in pt_cns.split(","):
+        new_cns.append(rep[cns.strip().lower()])
+    return '+'.join(sorted(new_cns))
 
 def test_db_gen():
     # db = RecordsDb()

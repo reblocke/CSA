@@ -1,10 +1,10 @@
 # Read Excel Files for the CSA project
-from openpyxl import load_workbook
+import openpyxl as op
 import pandas as pd
 
 def load_sheet(location):
     """loads the sheet excel doc and returns the 1st sheet"""
-    wb = load_workbook(location, read_only=True, data_only=True)
+    wb = op.load_workbook(location, read_only=True, data_only=True)
     return wb[wb.sheetnames[0]]
 
 def sheet_to_arrays(excel_sheet):
@@ -46,44 +46,54 @@ def sheet_to_arrays(excel_sheet):
         try:
             row.append(int(patient[Age_Column].value))
         except(ValueError, TypeError, AttributeError):
+            print("Age Column Error: Row " + str(i))
             row.append(None)
         try:
             row.append(patient[Sex_Column].value.lower()) #Make discrete?
         except(ValueError, TypeError, AttributeError):
+            print("Sex Column Error: Row " + str(i))
             row.append(None)
         try:
             row.append(float(patient[BMI_Column].value))
         except(ValueError, TypeError, AttributeError):
+            print("BMI Column Error: Row " + str(i))
             row.append(None)
         try:
             row.append(float(patient[AHI_Column].value))
         except(ValueError, TypeError, AttributeError):
+            print("AHI Column Error: Row " + str(i))
             row.append(None)
         # Should these following ones be made discrete?
         try:
             row.append(patient[Base_Dx_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
+            print("Base Dx Column Error: Row " + str(i))
             row.append(None)
         try:
             row.append(patient[Post_Dx_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
+            print("Post DX Column Error: Row " + str(i))
             row.append(None)
         try:
             row.append(patient[Final_Tx_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
+            print("Final Tx Column Error: Row " + str(i))
             row.append(None)
         try:
             row.append(patient[Outcome_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
+            print("Outcome Column Error: Row " + str(i))
             row.append(None)
 
         try:
             row.append(patient[Path_ASV_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
+            print("Path to ASV Column Error: Row " + str(i))
             row.append(None)
         try:
             row.append(patient[Time_ASV_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
+            print("Time to ASV Column Error: Row " + str(i))
             row.append(None)
         Patients.append(row)
         i = i+1
@@ -180,6 +190,7 @@ def arrays_to_df(patient_array):
 
 def matchDx(pt_dx):
     """match the diagnosis up with the shorter labels"""
+    # print(pt_dx)
     new_dx = ""
     rep = {"te csa": "+TECSA",
         "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"+Neurologic",

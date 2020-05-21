@@ -1,14 +1,17 @@
-import pandas as pd
 from ReadExcel import *
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.sankey as sankey
 import matplotlib.gridspec as gridspec
+import pandas as pd
 
 def summary_stats(df):
 
     print("\nAge Summary Statistics:\n")
     print(str(df['Age'].describe()))
+
+    print("\nSex Summary Statistics:\n")
+    print(str(df['Sex'].value_counts()))
 
     print("\nBMI Summary Statistics:\n")
     print(str(df['BMI'].describe()))
@@ -19,10 +22,10 @@ def summary_stats(df):
     print("\nBase Dx Counts:\n")
     print(str(df['BaseDx'].value_counts()))
 
-    print("\nPost Dx Counts:\n")
+    print("\nEtiology Counts:\n")
     print(str(df['PostDx'].value_counts()))
 
-    print("\nFinal Tx Counts:\n")
+    print("\nFinal Treatment Counts:\n")
     print(str(df['FinalTx'].value_counts()))
 
     print("\nOutcome Counts:\n")
@@ -88,7 +91,7 @@ def sankeyTypeOutcome(df):
         unit=" patients", gap=0.9, margin=0.05,
         flows= flow,
         labels=label,
-        orientations=[1, 0, -1, -1, 1, -1, 0, -1, 1])
+        orientations=[1, 0, -1, -1, 1, -1, 0, -1, 1, -1])
 
     sk.finish()
     # plt.tight_layout()
@@ -303,15 +306,28 @@ def printSumByBaseDx(df):
     print("\n\n----AMONG THE ENTIRE DATASET----\n")
     summary_stats(df)
 
-    print("\n\n----AMONG PATIENTS WITH PREDOMINANTLY CSA (MORE THAN 50%)----\n")
-    CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA"]
+    print("\n\n----AMONG PATIENTS WITH PURE CSA (MORE THAN 90%)----\n")
     CSA_pure = df.loc[df['BaseDx'] == "Pure CSA"]
-    summary_stats(pd.merge(CSA_predom, CSA_pure, how='outer'))
+    summary_stats(CSA_pure)
 
-    print("\n\n----AMONG PATIENTS WITH < 50% CSA-----")
+    print("\n\n----AMONG PATIENTS WITH PREDOMINANTLY CSA (50 - 90%)----\n")
+    CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA"]
+    summary_stats(CSA_predom)
+
+    print("\n\n----AMONG PATIENTS WITH Combined OSA/CSA (10 - 50% CSA)-----")
     OSA_predom = df.loc[df['BaseDx'] == "Mainly OSA"]
+    summary_stats(OSA_predom)
+
+    print("\n\n----AMONG PATIENTS WITH PURE OSA (< 10% CSA)-----")
     OSA_pure = df.loc[df['BaseDx'] == "Combined OSA/CSA"]
-    summary_stats(pd.merge(OSA_predom, OSA_pure, how='outer'))
+    summary_stats(OSA_pure)
+
+    # print("\n\n----AMONG PATIENTS WITH PREDOMINANTLY CSA (MORE THAN 50%)----\n")
+    # summary_stats(pd.merge(CSA_predom, CSA_pure, how='outer'))
+    # print("\n\n----AMONG PATIENTS WITH < 50% CSA-----")
+    # summary_stats(pd.merge(OSA_predom, OSA_pure, how='outer'))
+
+
 
 
 def main():
@@ -324,16 +340,18 @@ def main():
     df.to_excel('output.xlsx')
 
     #sankeyTypeFinalTx(df)
-    vis_hist_etio(df)
+    # vis_hist_etio(df)
 
     #pieChartBaseDx(df)
-    #printSumByBaseDx(df)
+    printSumByBaseDx(df)
 
-    print("\n\n---Total of number of patients where each etiology was contributory---")
-    print("---(will some to more than total given mutliple dx's)---\n")
+    #print("\n\n---Total of number of patients where each etiology was contributory---")
+    #print("---(will some to more than total given mutliple dx's)---\n")
 
     #visualizations(df)
     #sankeyEtioTx(df)
+    #sankeyTypeFinalTx(df)
+    #sankeyTypeOutcome(df)
 
 if __name__ == '__main__':
     main()

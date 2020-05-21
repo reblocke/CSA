@@ -10,11 +10,32 @@ def summary_stats(df):
     print("\nAge Summary Statistics:\n")
     print(str(df['Age'].describe()))
 
-    print("\nSex Summary Statistics:\n")
+    print("\nSex Counts:\n")
     print(str(df['Sex'].value_counts()))
+
+    print("\nRace Counts:\n")
+    print(str(df['Race'].value_counts()))
+
+    print("\nSmoking Counts:\n")
+    print(str(df['Smoking'].value_counts()))
 
     print("\nBMI Summary Statistics:\n")
     print(str(df['BMI'].describe()))
+
+    print("\nComorbidity Combination Counts:\n")
+    print(str(df['Comorb'].value_counts()))
+    print("\nComorbidity Counts:\n")
+    print(str(histo_comorbs_includes(df)))
+
+    print("\nHeart Combination Counts:\n")
+    print(str(df['Heart'].value_counts()))
+    print("\nHeart Counts:\n")
+    print(str(histo_heart_includes(df)))
+
+    print("\nCNS Combination Counts:\n")
+    print(str(df['CNS'].value_counts()))
+    print("\nCNS Counts:\n")
+    print(str(histo_cns_includes(df)))
 
     print("\nAHI Summary Statistics:\n")
     print(str(df['AHI'].describe()))
@@ -22,8 +43,11 @@ def summary_stats(df):
     print("\nBase Dx Counts:\n")
     print(str(df['BaseDx'].value_counts()))
 
-    print("\nEtiology Counts:\n")
+    print("\nEtiology Combination Counts:\n")
     print(str(df['PostDx'].value_counts()))
+    print("\nEtiology Counts:\n")
+    print(str(histo_dx_includes(df)))
+
 
     print("\nFinal Treatment Counts:\n")
     print(str(df['FinalTx'].value_counts()))
@@ -335,8 +359,7 @@ def main():
     db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
     df = arrays_to_df(sheet_to_arrays(load_sheet(db_loc)))
 
-    # ['ID', 'Age', 'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
-    # "ProcToASV", "TimeToASV]
+
     df.to_excel('output.xlsx')
 
     #sankeyTypeFinalTx(df)

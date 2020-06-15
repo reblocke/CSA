@@ -126,10 +126,12 @@ def sheet_to_arrays(excel_sheet):
     return Patients[1:]  # take off the first row = labels
 
 
-def histo_dx_includes(df):
+def histo_dx_includes(df, return_df=False):
     """Returns a histogram (pandas series) of diagnosis where a post-titration diagnosis of
     w/ multiple factors (e.g. Meds+CV) each are counted toward their respective
-    category counts"""
+    category counts
+
+    If return_df = true, will return in dataframe (with 'Dx', 'Count' as keys) instead of a series"""
 
     # TODO: need to find and delete combination TE + other etiology postDx's
     histo = pd.Series({"TECSA":0,
@@ -144,7 +146,11 @@ def histo_dx_includes(df):
         for cat in histo.index:
             if cat in dxstr:
                 histo[cat] +=1
-    return histo.sort_values(ascending=False)
+    histo = histo.sort_values(ascending=False)
+    if return_df is False:
+        return histo
+    else:
+        return pd.DataFrame({"Dx": histo.index, "Count": histo.data})
 
 def histo_comorbs_includes(df):
     """Returns a histogram (pandas series) of comorbidities where a comorbidity of
@@ -209,7 +215,9 @@ def arrays_to_df(patient_array):
     categorized.
 
     ['ID', Age', 'Sex', 'BMI', 'AHI', 'BaseDx', 'PostDx', 'FinalTx', 'Outcome',
-    "ProcToASV", "TimeToASV]"""
+    "ProcToASV", "TimeToASV"]
+
+    Also adds an inferred column "InitialTx" """
 
     df = pd.DataFrame.from_records(patient_array, columns=['ID', 'Age',  'Sex', 'Race', 'Smoking', 'BMI', 'Comorb',
                                                            'Heart', 'CNS', 'AHI', 'BaseDx', 'PostDx', 'FinalTx',
@@ -278,7 +286,37 @@ def arrays_to_df(patient_array):
         "within 2 mo", '3-6 mo', '6+ mo'], ordered=True)
     df['TimeToASV'] = df['TimeToASV'].astype(timeToASVCat)
 
+    df['InitTx'] = df.apply(infer_initial_treatment, axis=1)
+    initTxCat = pd.api.types.CategoricalDtype(categories=["ivaps", "asv",
+        "bipap", "cpap", "O2", "none", "other", "unknown"], ordered=True)
+    df['InitTx'] = df['InitTx'].astype(initTxCat)
+
     return df
+
+
+def infer_initial_treatment(patient):
+    """takes a patient (row) from the dataframe and infers what the initial treatment was, returned as string"""
+    init_tx = 'unknown'    # default
+    if patient['FinalTx'] == "asv":
+        if patient['ProcToASV'] == "initial treatment":
+            init_tx = "asv"
+        elif patient['ProcToASV'] == 'after trial of cpap':
+            init_tx = "cpap"    # Note: this is an assumption: all patients who trialed CPAP prior to ASV started w CPAP
+        elif patient['Outcome'] == "failed cpap":
+            init_tx = "cpap"    # Note: this is an assumption: all patients who failed CPAP prior to ASV started w CPAP
+    elif patient['FinalTx'] == "bipap":
+        if patient['Outcome'] == 'failed cpap':
+            init_tx = "cpap"
+    elif patient['FinalTx'] == "none" or patient['FinalTx'] == "O2" or patient['FinalTx'] == "other":
+        if patient['Outcome'] == 'failed cpap' or patient['Outcome'] == "never started cpap" \
+                or patient['Outcome'] == "non-compliant" or patient['Outcome'] == "resolved w/ cpap":
+            init_tx = "cpap"
+            # note: this assumes that patients who were noncompliant and ended on none or just O2 were non comp w CPAP
+        elif patient['Outcome'] == "n/a" or patient['Outcome'] == "never started on cpap":
+            init_tx = str(patient['FinalTx'])
+    elif patient['FinalTx'] == "cpap":
+        init_tx = "cpap"
+    return init_tx
 
 
 def matchDx(pt_dx):

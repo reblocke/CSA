@@ -135,7 +135,7 @@ def makeTables(df):
 
     for cell in demographic_worksheet['A'] + demographic_worksheet[1]:
         cell.style = 'Pandas'
-        cell.alignment = Alignment(wrapText=True, vertical='center')
+        cell.alignment = Alignment(wrapText=True, vertical='center', horizontal='center')
 
     # Table 2 - Etiology
     etio_row_labels = ['Cause of Central Sleep Apnea', 'Heart Comorbidity Counts', 'CNS Comorbidity Counts']
@@ -168,9 +168,14 @@ def makeTables(df):
     #TODO: do we want to include initial treatment? in the table 3
 
     # Table 3 - Outcome
-    outcome_row_labels = ['Final Treatment', 'Outcome']
+    outcome_row_labels = ['Initial Treatment','Final Treatment', 'Outcome']
 
-    outcome = [(count_string(df['FinalTx'].value_counts(), num_total),
+    outcome = [(count_string(df['InitTx'].value_counts(), num_total),
+                count_string(CSA_pure['InitTx'].value_counts(), num_csa_pure),
+                count_string(CSA_predom['InitTx'].value_counts(), num_csa_predom),
+                count_string(OSA_predom['InitTx'].value_counts(), num_osa_predom),
+                count_string(OSA_pure['InitTx'].value_counts(), num_osa_pure)),
+               (count_string(df['FinalTx'].value_counts(), num_total),
                 count_string(CSA_pure['FinalTx'].value_counts(), num_csa_pure),
                 count_string(CSA_predom['FinalTx'].value_counts(), num_csa_predom),
                 count_string(OSA_predom['FinalTx'].value_counts(), num_osa_predom),
@@ -189,6 +194,65 @@ def makeTables(df):
         outcome_worksheet.append(r)
 
     for cell in outcome_worksheet['A'] + outcome_worksheet[1]:
+        cell.style = 'Pandas'
+        cell.alignment = Alignment(wrapText=True, vertical='center')
+
+    # Table 4 - Outcome by etiology
+
+    neurologic_df = df.loc[df['PostDx'].str.contains("Neurologic")].sort_values(by='Outcome')
+    cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")].sort_values(by='Outcome')
+    medication_df = df.loc[df['PostDx'].str.contains("Medication")].sort_values(by='Outcome')
+    tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")].sort_values(by='Outcome')
+    osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
+    primary_df = df.loc[df['PostDx'].str.contains("Primary")].sort_values(by='Outcome')
+
+    num_neurologic = len(neurologic_df.index)
+    num_cardiac = len(cardiac_df.index)
+    num_medication = len(medication_df.index)
+    num_tecsa = len(tecsa_df.index)
+    num_osacsa = len(osacsa_df.index)
+    num_primary = len(primary_df.index)
+
+    column_etio_labels = ['All, n=%s' % num_total,
+                     'Neurologic Contributor, n=%s' % num_neurologic,
+                     'Cardiac Contributor, n=%s' % num_cardiac,
+                     'Medication Contributor, n=%s' % num_medication,
+                     'Treatment Emergent, n=%s' % num_tecsa,
+                     'OSA-associated Centrals, n=%s' % num_osacsa,
+                     'Primary CSA, n=%s' % num_primary]
+
+    outcome_etio_row_labels = ['Initial Treatment', 'Final Treatment', 'Outcome']
+
+    outcome_etio = [(count_string(df['InitTx'].value_counts(), num_total),
+                    count_string(neurologic_df['InitTx'].value_counts(), num_neurologic),
+                    count_string(cardiac_df['InitTx'].value_counts(), num_cardiac),
+                    count_string(medication_df['InitTx'].value_counts(), num_medication),
+                    count_string(tecsa_df['InitTx'].value_counts(), num_tecsa),
+                    count_string(osacsa_df['InitTx'].value_counts(), num_osacsa),
+                    count_string(primary_df['InitTx'].value_counts(), num_primary)),
+                    (count_string(df['FinalTx'].value_counts(), num_total),
+                    count_string(neurologic_df['FinalTx'].value_counts(), num_neurologic),
+                    count_string(cardiac_df['FinalTx'].value_counts(), num_cardiac),
+                    count_string(medication_df['FinalTx'].value_counts(), num_medication),
+                    count_string(tecsa_df['FinalTx'].value_counts(), num_tecsa),
+                    count_string(osacsa_df['FinalTx'].value_counts(), num_osacsa),
+                    count_string(primary_df['FinalTx'].value_counts(), num_primary)),
+                    (count_string(df['Outcome'].value_counts(), num_total),
+                    count_string(neurologic_df['Outcome'].value_counts(), num_neurologic),
+                    count_string(cardiac_df['Outcome'].value_counts(), num_cardiac),
+                    count_string(medication_df['Outcome'].value_counts(), num_medication),
+                    count_string(tecsa_df['Outcome'].value_counts(), num_tecsa),
+                    count_string(osacsa_df['Outcome'].value_counts(), num_osacsa),
+                    count_string(primary_df['Outcome'].value_counts(), num_primary))]
+
+    outcome_etio_df = pd.DataFrame(outcome_etio, columns=column_etio_labels, index=outcome_etio_row_labels)
+
+    outcome_etio_worksheet = workbook.create_sheet(title="Outcome by Etiology", index=3)
+
+    for r in dataframe_to_rows(outcome_etio_df, index=True, header=True):
+        outcome_etio_worksheet.append(r)
+
+    for cell in outcome_etio_worksheet['A'] + outcome_etio_worksheet[1]:
         cell.style = 'Pandas'
         cell.alignment = Alignment(wrapText=True, vertical='center')
 
@@ -853,7 +917,7 @@ def main():
     # sankeyEtioTx(df)
     # sankeyTypeFinalTx(df)
     # sankeyTypeOutcome(df)
-    outcome_by_csa_percent(df)
+    #outcome_by_csa_percent(df)
 
 
 if __name__ == '__main__':

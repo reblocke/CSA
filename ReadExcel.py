@@ -221,12 +221,13 @@ def arrays_to_df(patient_array):
 
     df = pd.DataFrame.from_records(patient_array, columns=['ID', 'Age',  'Sex', 'Race', 'Smoking', 'BMI', 'Comorb',
                                                            'Heart', 'CNS', 'AHI', 'BaseDx', 'PostDx', 'FinalTx',
-                                                           'Outcome', "ProcToASV", "TimeToASV"])
+                                                           'Outcome', "ProcToASV", "TimeToASV"])  #AHI_label added after
 
     df['Sex'] = df['Sex'].astype('category')
 
     df['Race'] = df['Race'].astype('category')
     df['Race'] = df['Race'].replace({"not hispanic/ latino": 'not hispanic/latino'})
+    df['Race'] = df['Race'].replace({"not hispanic/latino": 'white'})  # Utah Adjustment :(
 
     df['Smoking'] = df['Smoking'].astype('category')
 
@@ -235,6 +236,9 @@ def arrays_to_df(patient_array):
     df['Heart'] = df['Heart'].apply(matchHeart).astype('category')
 
     df['CNS'] = df['CNS'].apply(matchCNS).astype('category')
+
+    AHILabelCat = pd.api.types.CategoricalDtype(categories=['none', 'mild', 'moderate', 'severe'], ordered=True)
+    df['AHI_label'] = df['AHI'].apply(ahi_label).astype(AHILabelCat)
 
     df['BaseDx'] = df['BaseDx'].replace(
         {"Mainly OSA (<10% CSA or most centra events either SOCAPACA)".lower(): 'Mainly OSA',
@@ -332,6 +336,19 @@ def matchDx(pt_dx):
         new_dx.append(rep[dx.strip().lower()])  # transform labels
     return '+'.join(sorted(new_dx))   # make sure that order doesn't matter, join iterable list
 
+
+def ahi_label(ahi):
+    """return the label for the severity of OSA based on AHI"""
+    if ahi < 5.0:
+        return "none"
+    elif ahi < 15.0:
+        return "mild"
+    elif ahi < 30.0:
+        return "moderate"
+    elif ahi >= 30.0:
+        return "severe"
+    else:
+        return "error"  # shouldn't happen, will cause flag at conversion to type
 
 def matchComorbs(pt_comorb):
     """match the comorbidities up with the shorter labels"""

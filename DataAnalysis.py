@@ -58,6 +58,581 @@ def summary_stats(df):
     print(str(df['Outcome'].value_counts()))
 
 
+def new_make_tables(df):
+    """makes 3 tables on:
+    Demographics for each
+    Outcome for each
+    Etiology for each
+
+    Each = stratified by <10%, 10-50%, 50-90%, 90+%
+
+    Formatted to be more readable than older version
+    """
+
+    CSA_pure = df.loc[df['BaseDx'] == "Pure CSA"]
+    CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA"]
+    OSA_predom = df.loc[df['BaseDx'] == "Combined OSA/CSA"]
+    OSA_pure = df.loc[df['BaseDx'] == "Mainly OSA"]
+
+    num_total = len(df.index)
+    num_csa_pure = len(CSA_pure.index)
+    num_csa_predom = len(CSA_predom.index)
+    num_osa_predom = len(OSA_predom.index)
+    num_osa_pure = len(OSA_pure.index)
+
+    column_labels = ['All',
+                     'Pure CSA (90+% Central Events)',
+                     'Predominantly CSA (50-90% Central Events)',
+                     'Combined OSA/CSA (10-50% Central Events)',
+                     'Mainly OSA (<10% Central Events)']
+
+    workbook = Workbook()
+
+    # Table 1: Demographics - each list is row
+    demo_row_labels = []
+    demographics = []
+
+    # Age
+    demo_row_labels.append('AGE')
+    demographics.append((std_string(df['Age'].describe()), std_string(CSA_pure['Age'].describe()),
+                     std_string(CSA_predom['Age'].describe()), std_string(OSA_predom['Age'].describe()),
+                     std_string(OSA_pure['Age'].describe())))
+
+    demo_row_labels.append("")
+    demographics.append(("", "", "", "", "")) # empty row
+
+    # Sex
+    demo_row_labels.append('GENDER')
+    demographics.append(("", "", "", "", "")) # empty row
+
+    for sex in df['Sex'].value_counts().keys():
+        demo_row_labels.append(sex)
+        demographics.append((count_string_indiv(df['Sex'].value_counts()[sex], num_total),
+                            count_string_indiv(CSA_pure['Sex'].value_counts(dropna=False)[sex], num_csa_pure),
+                            count_string_indiv(CSA_predom['Sex'].value_counts(dropna=False)[sex], num_csa_predom),
+                            count_string_indiv(OSA_predom['Sex'].value_counts(dropna=False)[sex], num_osa_predom),
+                            count_string_indiv(OSA_pure['Sex'].value_counts(dropna=False)[sex], num_osa_pure)))
+
+    demo_row_labels.append("")
+    demographics.append(("", "", "", "", "")) # empty row
+
+    # Race
+    demo_row_labels.append('RACE/ETHNICITY')
+    demographics.append(("", "", "", "", "")) # empty row
+
+    for race in df['Race'].value_counts().keys():
+        demo_row_labels.append(race)
+        count_total = df['Race'].value_counts()[race]
+
+        try:
+            count_csa_pure = CSA_pure['Race'].value_counts()[race]
+        except(KeyError):
+            count_csa_pure = 0
+        try:
+            count_csa_predom = CSA_predom['Race'].value_counts()[race]
+        except(KeyError):
+            count_csa_predom = 0
+        try:
+            count_osa_predom = OSA_predom['Race'].value_counts()[race]
+        except(KeyError):
+            count_osa_predom = 0
+        try:
+            count_osa_pure = OSA_pure['Race'].value_counts(dropna=False)[race]
+        except(KeyError):
+            count_osa_pure = 0
+
+        demographics.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    demo_row_labels.append("")
+    demographics.append(("", "", "", "", "")) # empty row
+
+    # Smoking
+    demo_row_labels.append('SMOKING')
+    demographics.append(("", "", "", "", "")) # empty row
+
+    for status in df['Smoking'].value_counts().keys():
+        demo_row_labels.append(status)
+        count_total = df['Smoking'].value_counts()[status]
+
+        try:
+            count_csa_pure = CSA_pure['Smoking'].value_counts()[status]
+        except(KeyError):
+            count_csa_pure = 0
+        try:
+            count_csa_predom = CSA_predom['Smoking'].value_counts()[status]
+        except(KeyError):
+            count_csa_predom = 0
+        try:
+            count_osa_predom = OSA_predom['Smoking'].value_counts()[status]
+        except(KeyError):
+            count_osa_predom = 0
+        try:
+            count_osa_pure = OSA_pure['Smoking'].value_counts(dropna=False)[status]
+        except(KeyError):
+            count_osa_pure = 0
+
+        demographics.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    demo_row_labels.append("")
+    demographics.append(("", "", "", "", ""))  # empty row
+
+    # BMI
+    demo_row_labels.append('BMI')
+    demographics.append((iqr_string(df['BMI'].describe()), iqr_string(CSA_pure['BMI'].describe()),
+                     iqr_string(CSA_predom['BMI'].describe()), iqr_string(OSA_predom['BMI'].describe()),
+                     iqr_string(OSA_pure['BMI'].describe())))
+
+    demo_row_labels.append("")
+    demographics.append(("", "", "", "", "")) # empty row
+
+    # Comorbidities
+    demo_row_labels.append('COMORBIDITIES')
+    demographics.append(("", "", "", "", "")) # empty row
+
+    for status in histo_comorbs_includes(df).keys():
+        demo_row_labels.append(status)
+        count_total = histo_comorbs_includes(df)[status] # Automatically returns all keys (including a value if 0)
+        count_csa_pure = histo_comorbs_includes(CSA_pure)[status]
+        count_csa_predom = histo_comorbs_includes(CSA_predom)[status]
+        count_osa_predom = histo_comorbs_includes(OSA_predom)[status]
+        count_osa_pure = histo_comorbs_includes(OSA_pure)[status]
+
+        demographics.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    demo_row_labels.append("")
+    demographics.append(("", "", "", "", ""))  # empty row
+
+    demo_row_labels.append('OSA SEVERITY BY AHI')
+    demographics.append(("", "", "", "", "")) # empty row
+
+    # AHI
+    demo_row_labels.append('AHI')
+    demographics.append((iqr_string(df['AHI'].describe()), iqr_string(CSA_pure['AHI'].describe()),
+                     iqr_string(CSA_predom['AHI'].describe()), iqr_string(OSA_predom['AHI'].describe()),
+                     iqr_string(OSA_pure['AHI'].describe())))
+
+    for severity in df['AHI_label'].value_counts().keys():
+        demo_row_labels.append(severity)
+        count_total = df['AHI_label'].value_counts()[severity]
+
+        try:
+            count_csa_pure = CSA_pure['AHI_label'].value_counts()[severity]
+        except(KeyError):
+            count_csa_pure = 0
+        try:
+            count_csa_predom = CSA_predom['AHI_label'].value_counts()[severity]
+        except(KeyError):
+            count_csa_predom = 0
+        try:
+            count_osa_predom = OSA_predom['AHI_label'].value_counts()[severity]
+        except(KeyError):
+            count_osa_predom = 0
+        try:
+            count_osa_pure = OSA_pure['AHI_label'].value_counts(dropna=False)[severity]
+        except(KeyError):
+            count_osa_pure = 0
+
+        demographics.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    demographics_df = pd.DataFrame(demographics, columns=column_labels, index=demo_row_labels)
+
+    demographic_worksheet = workbook.worksheets[0]
+    demographic_worksheet.title = "Demographics"
+
+    for r in dataframe_to_rows(demographics_df, index=True, header=True):
+        demographic_worksheet.append(r)
+
+    for cell in demographic_worksheet['A'] + demographic_worksheet[1]:
+        cell.style = 'Pandas'
+        cell.alignment = Alignment(wrapText=True, vertical='center', horizontal='center')
+
+    # Table 2 - Etiology
+    etio_row_labels = []
+    etiologies = []
+
+    # Category:
+    etio_row_labels.append("CAUSE OF CENTRAL SLEEP APNEAS")
+    etiologies.append(("", "", "", "", ""))  # empty row
+
+    for key in histo_dx_includes(df).keys():
+        etio_row_labels.append(key)
+        count_total = histo_dx_includes(df)[key] # Automatically returns all keys (including a value if 0)
+        count_csa_pure = histo_dx_includes(CSA_pure)[key]
+        count_csa_predom = histo_dx_includes(CSA_predom)[key]
+        count_osa_predom = histo_dx_includes(OSA_predom)[key]
+        count_osa_pure = histo_dx_includes(OSA_pure)[key]
+
+        etiologies.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    etio_row_labels.append("")
+    etiologies.append(("", "", "", "", ""))  # empty row
+
+    # CV comorbs:
+    # TODO: the CV comorbidity counts should be in table 1, not 2 (not taken as etiology) - currently changed in post
+    etio_row_labels.append("CARDIOVASCULAR CAUSES OF CSA")
+    etiologies.append(("", "", "", "", ""))  # empty row
+
+    for key in histo_heart_includes(df).keys():
+        etio_row_labels.append(key)
+        count_total = histo_heart_includes(df)[key] # Automatically returns all keys (including a value if 0)
+        count_csa_pure = histo_heart_includes(CSA_pure)[key]
+        count_csa_predom = histo_heart_includes(CSA_predom)[key]
+        count_osa_predom = histo_heart_includes(OSA_predom)[key]
+        count_osa_pure = histo_heart_includes(OSA_pure)[key]
+
+        etiologies.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    etio_row_labels.append("")
+    etiologies.append(("", "", "", "", ""))  # empty row
+
+    # CNS comorbs:
+    etio_row_labels.append("CNS CAUSES OF CSA")
+    etiologies.append(("", "", "", "", ""))  # empty row
+
+    for key in histo_cns_includes(df).keys():
+        etio_row_labels.append(key)
+        count_total = histo_cns_includes(df)[key] # Automatically returns all keys (including a value if 0)
+        count_csa_pure = histo_cns_includes(CSA_pure)[key]
+        count_csa_predom = histo_cns_includes(CSA_predom)[key]
+        count_osa_predom = histo_cns_includes(OSA_predom)[key]
+        count_osa_pure = histo_cns_includes(OSA_pure)[key]
+
+        etiologies.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    etio_row_labels.append("")
+    etiologies.append(("", "", "", "", ""))  # empty row
+    etio_row_labels.append("")
+    etiologies.append(("*Note:", "CAD does not count as causative of CSA and is listed in table 1", "", "", ""))
+    etio_row_labels.append("")
+    etiologies.append(("*Note2:", "does not sum to total- If multiple comorbidities present, counted toward each", "", "", ""))
+
+    etiology_df = pd.DataFrame(etiologies, columns=column_labels, index=etio_row_labels)
+
+    etiology_worksheet = workbook.create_sheet(title="Etiology", index=1)
+
+    for r in dataframe_to_rows(etiology_df, index=True, header=True):
+        etiology_worksheet.append(r)
+
+    for cell in etiology_worksheet['A'] + etiology_worksheet[1]:
+        cell.style = 'Pandas'
+        cell.alignment = Alignment(wrapText=True, vertical='center')
+
+    # Table 3 - Outcome
+    outcome_row_labels = []
+    outcome = []
+
+    # 'Initial Treatment'
+    outcome_row_labels.append('INITIAL TREATMENT')
+    outcome.append(("", "", "", "", "")) # empty row
+
+    for key in df['InitTx'].value_counts().keys():
+        outcome_row_labels.append(key)
+        count_total = df['InitTx'].value_counts()[key]
+
+        try:
+            count_csa_pure = CSA_pure['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_csa_pure = 0
+        try:
+            count_csa_predom = CSA_predom['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_csa_predom = 0
+        try:
+            count_osa_predom = OSA_predom['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_osa_predom = 0
+        try:
+            count_osa_pure = OSA_pure['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_osa_pure = 0
+
+        outcome.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    outcome_row_labels.append("")
+    outcome.append(("", "", "", "", ""))  # empty row
+
+    # 'Final Treatment',
+    outcome_row_labels.append('FINAL TREATMENT')
+    outcome.append(("", "", "", "", "")) # empty row
+
+    for key in df['FinalTx'].value_counts().keys():
+        outcome_row_labels.append(key)
+        count_total = df['FinalTx'].value_counts()[key]
+
+        try:
+            count_csa_pure = CSA_pure['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_csa_pure = 0
+        try:
+            count_csa_predom = CSA_predom['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_csa_predom = 0
+        try:
+            count_osa_predom = OSA_predom['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_osa_predom = 0
+        try:
+            count_osa_pure = OSA_pure['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_osa_pure = 0
+
+        outcome.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    outcome_row_labels.append("")
+    outcome.append(("", "", "", "", ""))  # empty row
+
+
+    # 'Outcome'
+    outcome_row_labels.append('OUTCOME')
+    outcome.append(("", "", "", "", "")) # empty row
+
+    for key in df['Outcome'].value_counts().keys():
+        outcome_row_labels.append(key)
+        count_total = df['Outcome'].value_counts()[key]
+
+        try:
+            count_csa_pure = CSA_pure['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_csa_pure = 0
+        try:
+            count_csa_predom = CSA_predom['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_csa_predom = 0
+        try:
+            count_osa_predom = OSA_predom['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_osa_predom = 0
+        try:
+            count_osa_pure = OSA_pure['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_osa_pure = 0
+
+        outcome.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    outcome_df = pd.DataFrame(outcome, columns=column_labels, index=outcome_row_labels)
+
+    outcome_worksheet = workbook.create_sheet(title="Outcome", index=2)
+
+    for r in dataframe_to_rows(outcome_df, index=True, header=True):
+        outcome_worksheet.append(r)
+
+    for cell in outcome_worksheet['A'] + outcome_worksheet[1]:
+        cell.style = 'Pandas'
+        cell.alignment = Alignment(wrapText=True, vertical='center')
+
+    # Table 4 - Outcome by etiology
+
+    neurologic_df = df.loc[df['PostDx'].str.contains("Neurologic")].sort_values(by='Outcome')
+    cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")].sort_values(by='Outcome')
+    medication_df = df.loc[df['PostDx'].str.contains("Medication")].sort_values(by='Outcome')
+    tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")].sort_values(by='Outcome')
+    osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
+    primary_df = df.loc[df['PostDx'].str.contains("Primary")].sort_values(by='Outcome')
+
+    num_neurologic = len(neurologic_df.index)
+    num_cardiac = len(cardiac_df.index)
+    num_medication = len(medication_df.index)
+    num_tecsa = len(tecsa_df.index)
+    num_osacsa = len(osacsa_df.index)
+    num_primary = len(primary_df.index)
+
+    column_etio_labels = ['All',
+                     'Neurologic Contributor',
+                     'Cardiac Contributor',
+                     'Medication Contributor',
+                     'Treatment Emergent',
+                     'OSA-associated Centrals',
+                     'Primary CSA']
+
+    outcome_etio_row_labels = []
+    outcome_etio = []
+
+    # 'Initial Treatment'
+
+    outcome_etio_row_labels.append('INITIAL TREATMENT')
+    outcome_etio.append(("", "", "", "", "", "", "")) # empty row
+
+    for key in df['InitTx'].value_counts().keys():
+        outcome_etio_row_labels.append(key)
+        count_total = df['InitTx'].value_counts()[key]
+
+        try:
+            count_neurologic = neurologic_df['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_neurologic = 0
+        try:
+            count_cardiac = cardiac_df['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_cardiac = 0
+        try:
+            count_medication = medication_df['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_medication = 0
+        try:
+            count_tecsa = tecsa_df['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_tecsa = 0
+        try:
+            count_osacsa = osacsa_df['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_osacsa = 0
+        try:
+            count_primary = primary_df['InitTx'].value_counts()[key]
+        except(KeyError):
+            count_primary = 0
+
+        outcome_etio.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_neurologic, num_neurologic),
+                            count_string_indiv(count_cardiac, num_cardiac),
+                            count_string_indiv(count_medication, num_medication),
+                            count_string_indiv(count_tecsa, num_tecsa),
+                            count_string_indiv(count_osacsa, num_osacsa),
+                            count_string_indiv(count_primary, num_primary)))
+
+    outcome_etio_row_labels.append("")
+    outcome_etio.append(("", "", "", "", "", "", ""))  # empty row
+
+    # 'Final Treatment'
+
+    outcome_etio_row_labels.append('FINAL TREATMENT')
+    outcome_etio.append(("", "", "", "", "", "", "")) # empty row
+
+    for key in df['FinalTx'].value_counts().keys():
+        outcome_etio_row_labels.append(key)
+        count_total = df['FinalTx'].value_counts()[key]
+
+        try:
+            count_neurologic = neurologic_df['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_neurologic = 0
+        try:
+            count_cardiac = cardiac_df['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_cardiac = 0
+        try:
+            count_medication = medication_df['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_medication = 0
+        try:
+            count_tecsa = tecsa_df['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_tecsa = 0
+        try:
+            count_osacsa = osacsa_df['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_osacsa = 0
+        try:
+            count_primary = primary_df['FinalTx'].value_counts()[key]
+        except(KeyError):
+            count_primary = 0
+
+        outcome_etio.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_neurologic, num_neurologic),
+                            count_string_indiv(count_cardiac, num_cardiac),
+                            count_string_indiv(count_medication, num_medication),
+                            count_string_indiv(count_tecsa, num_tecsa),
+                            count_string_indiv(count_osacsa, num_osacsa),
+                            count_string_indiv(count_primary, num_primary)))
+
+    outcome_etio_row_labels.append("")
+    outcome_etio.append(("", "", "", "", "", "", ""))  # empty row
+
+    # 'Outcome'
+
+    outcome_etio_row_labels.append('OUTCOME')
+    outcome_etio.append(("", "", "", "", "", "", "")) # empty row
+
+    for key in df['Outcome'].value_counts().keys():
+        outcome_etio_row_labels.append(key)
+        count_total = df['Outcome'].value_counts()[key]
+
+        try:
+            count_neurologic = neurologic_df['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_neurologic = 0
+        try:
+            count_cardiac = cardiac_df['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_cardiac = 0
+        try:
+            count_medication = medication_df['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_medication = 0
+        try:
+            count_tecsa = tecsa_df['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_tecsa = 0
+        try:
+            count_osacsa = osacsa_df['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_osacsa = 0
+        try:
+            count_primary = primary_df['Outcome'].value_counts()[key]
+        except(KeyError):
+            count_primary = 0
+
+        outcome_etio.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_neurologic, num_neurologic),
+                            count_string_indiv(count_cardiac, num_cardiac),
+                            count_string_indiv(count_medication, num_medication),
+                            count_string_indiv(count_tecsa, num_tecsa),
+                            count_string_indiv(count_osacsa, num_osacsa),
+                            count_string_indiv(count_primary, num_primary)))
+
+    outcome_etio_df = pd.DataFrame(outcome_etio, columns=column_etio_labels, index=outcome_etio_row_labels)
+
+    outcome_etio_worksheet = workbook.create_sheet(title="Outcome by Etiology", index=3)
+
+    for r in dataframe_to_rows(outcome_etio_df, index=True, header=True):
+        outcome_etio_worksheet.append(r)
+
+    for cell in outcome_etio_worksheet['A'] + outcome_etio_worksheet[1]:
+        cell.style = 'Pandas'
+        cell.alignment = Alignment(wrapText=True, vertical='center')
+
+    workbook.save("tables.xlsx")
+    return
+
 def makeTables(df):
     """makes 3 tables on:
     Demographics for each
@@ -65,6 +640,8 @@ def makeTables(df):
     Etiology for each
 
     Each = stratified by <10%, 10-50%, 50-90%, 90+%
+
+    DEPRECATED: makes tables that are too dense.
     """
     CSA_pure = df.loc[df['BaseDx'] == "Pure CSA"]
     CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA"]
@@ -284,6 +861,15 @@ def count_string(counts_series, num_patients):
         percent = (counts_series[label] / num_patients) * 100
         output += ' (%.1f%%)\n' % percent
     return output[:-1]  # take off the final \n
+
+
+def count_string_indiv(num, num_patients):
+    """returns an string with the number and percentage of an individuals value"""
+    output = "%.0f/" % num
+    output += str(num_patients)
+    percentage = (num / num_patients) * 100
+    output += ' (%.1f%%)' % percentage
+    return output
 
 
 def pieChartBaseDx(df):
@@ -898,7 +1484,8 @@ def main():
 
     df.to_excel('output.xlsx')
     #printSumByBaseDx(df)
-    makeTables(df)
+    #makeTables(df)
+    new_make_tables(df)
 
     # print("\n\n---Total of number of patients where each etiology was contributory---")
     # print("---(will some to more than total given mutliple dx's)---\n")

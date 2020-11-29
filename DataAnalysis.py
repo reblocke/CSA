@@ -886,7 +886,9 @@ def pieChartBaseDx(df):
     ax.legend(["<10% Central", "10-50% Central", "50-90% Central", ">90% Central"],
               loc='lower left', frameon=True)
     plt.tight_layout()
-    plt.show()
+
+    fig.savefig('Pie Chart Base Diagnosis.png', dpi=100)
+    # plt.show()
 
 
 def sankeyTypeFinalTx(df):
@@ -914,7 +916,9 @@ def sankeyTypeFinalTx(df):
     # plt.tight_layout()
     ax.set_title("Percentage Central Apnea and FinalTx of Entire Dataset")
     ax.set_axis_off()
-    plt.show()
+
+    fig.savefig('Sankey Type Treatment.png', dpi=100)
+    # plt.show()
 
 
 def sankeyTypeOutcome(df):
@@ -938,13 +942,15 @@ def sankeyTypeOutcome(df):
     # plt.tight_layout()
     ax.set_title("Percentage Central Apnea and Outcome of Entire Dataset")
     ax.set_axis_off()
-    plt.show()
+
+    fig.savefig('Sankey Type Outcome.png', dpi=100)
+    # plt.show()
 
 
 def vis_hist_etio(df):
     post_dx_histo = histo_dx_includes(df)
     hist_df = pd.DataFrame({"Dx": post_dx_histo.index, "Count": post_dx_histo.data})
-    print(hist_df)
+    # print(hist_df)
     # hist_df = hist_df.drop(1)
     sns.set()
     sns.set_palette("husl", 3)
@@ -952,7 +958,8 @@ def vis_hist_etio(df):
     plt.title("Etiology of CSA; Multiple Contributors Allowed")
     ax.set_axis_labels("Etiologies of Central Sleep Apnea", "Number of Patients")
     plt.legend()
-    plt.show()
+    ax.fig.savefig('Histo Etiology.png', dpi=100)
+    # plt.show()
 
 
 def sankeyEtioTx(df):
@@ -984,6 +991,7 @@ def sankeyEtioTx(df):
     fig.set_size_inches(18, 11)
     fig.suptitle(
         "Flow (Sankey) Diagram of Etiology of Central Apneas and Final Treatment, Separated by %Central Events")
+    sankeySubPlot(f_ax1, df, "All Patients Diagnosed with CSA")
 
     # f_ax3.set_title("Mainly OSA", fontsize=10)
     sankeySubPlot(f_ax3, df.loc[df['BaseDx'] == "Mainly OSA"],
@@ -1018,7 +1026,7 @@ Treatments\n\
                ha="left", **style)
     f_ax8.set_axis_off()
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
-    fig.savefig('test2png.png', dpi=100)
+    fig.savefig('Sankey Etio Treatment.png', dpi=100)
     # plt.show()
 
 
@@ -1118,7 +1126,7 @@ def sankeySubPlot(ax, df, title):
            connect=(asvIndex, 0),
            patchlabel=" Final tx ASV",
            trunklength=4.5,
-           facecolor='lightyellow',
+           facecolor='lavender',
            alpha=.75)
 
     sk.finish()
@@ -1177,7 +1185,8 @@ def outcome_by_csa_percent(df):
     axes[3].set(xlabel="Patients with each outcome after initial treatment", ylabel=">90% Central Events")
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.show()
+    f.savefig('Outcome by CSA percent.png', dpi=100)
+    # plt.show()
     return
 
 
@@ -1275,7 +1284,8 @@ def outcome_by_etio(df):
     axes[5, 0].autoscale()
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.show()
+    f.savefig('Outcome by Etio.png', dpi=100)
+    # plt.show()
 
 def init_tx_by_etio(df):
     sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
@@ -1311,7 +1321,8 @@ def init_tx_by_etio(df):
     axes[5].set(xlabel="Patients who initially received each treatment modality", ylabel="Primary CSA")
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.show()
+    f.savefig('Init Treatment by Etiology.png', dpi=100)
+    # plt.show()
 
 
 def init_tx_by_csa(df):
@@ -1339,8 +1350,40 @@ def init_tx_by_csa(df):
     axes[3].set(xlabel="Patients who initially received each treatment modality", ylabel=">90% Central Events")
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.show()
+    f.savefig('Initial Treatment by Perc CSA.png', dpi=100)
+    # plt.show()
     return
+
+
+def final_tx_by_csa(df):
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
+
+    f, axes = plt.subplots(4, 1, figsize=(6, 9), sharex=True)
+    sns.despine(top=True, bottom=True)
+    f.suptitle("Final Treatment Modality, Grouped by %Central Events")
+
+    CSA_pure = df.loc[df['BaseDx'] == "Pure CSA"]
+    CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA"]
+    OSA_predom = df.loc[df['BaseDx'] == "Combined OSA/CSA"]
+    OSA_pure = df.loc[df['BaseDx'] == "Mainly OSA"]
+
+    sns.countplot(y='FinalTx', data=OSA_pure, ax=axes[0])
+    axes[0].set(xlabel="", ylabel="<10% Central Events")
+
+    sns.countplot(y='FinalTx', data=OSA_predom, ax=axes[1])
+    axes[1].set(xlabel="", ylabel="10-50% Central Events")
+
+    sns.countplot(y='FinalTx', data=CSA_predom, ax=axes[2])
+    axes[2].set(xlabel="", ylabel="50-90% Central Events")
+
+    sns.countplot(y='FinalTx', data=CSA_pure, ax=axes[3])
+    axes[3].set(xlabel="Patients who initially received each treatment modality", ylabel=">90% Central Events")
+
+    f.tight_layout(rect=[0, 0, 1, 0.95])
+    f.savefig('Final Treatment by Perc CSA.png', dpi=100)
+    # plt.show()
+    return
+
 
 def etio_by_csa(df):
     """creates a horizontal count chart with counts of each etiology and a pie chart with the proportion,
@@ -1406,7 +1449,8 @@ def etio_by_csa(df):
     axes[3, 0].autoscale()
 
     f.tight_layout(rect=[0, 0, 1, 0.95]) # .95 to leave space for title
-    plt.show()
+    f.savefig('Etio by percentage CSA.png', dpi=100)
+    # plt.show()
 
 def etio_by_csa_dep(df):
     """creates a lollipop graph with counts of each etiology, grouped by percentage of CSA"""
@@ -1468,7 +1512,7 @@ def visualizations(df):
 
     # Outcome by Base Dx as histograms
     # Todo: figure out how to normalize this
-    # ax = sns.catplot('BaseDx', hue='Outcome', kind='count', data=df)
+    ax = sns.catplot('BaseDx', hue='Outcome', kind='count', data=df)
 
     # Vis of distribution of AHIs
     #cleaned_df = df[df['AHI'].notnull()]
@@ -1490,22 +1534,22 @@ def main():
     # print("\n\n---Total of number of patients where each etiology was contributory---")
     # print("---(will some to more than total given mutliple dx's)---\n")
 
-    #visualizations(df)
+    # Visualization tester function
+    # visualizations(df)
 
     # Other visualizations:
-
-    # sankeyTypeFinalTx(df)
-    # vis_hist_etio(df)
-    # init_tx_by_csa(df)
-    # init_tx_by_etio(df)
-    #outcome_by_etio(df)
-    # etio_by_csa(df)
-    # pieChartBaseDx(df)
-    # sankeyEtioTx(df)
-    # sankeyTypeFinalTx(df)
-    # sankeyTypeOutcome(df)
-    #outcome_by_csa_percent(df)
-
+    vis_hist_etio(df)
+    init_tx_by_csa(df)
+    final_tx_by_csa(df)
+    init_tx_by_etio(df)
+    outcome_by_etio(df)
+    etio_by_csa(df)
+    pieChartBaseDx(df)
+    sankeyEtioTx(df)
+    sankeyTypeFinalTx(df)
+    sankeyTypeOutcome(df)
+    outcome_by_csa_percent(df)
+    sankeyTypeFinalTx(df)
 
 if __name__ == '__main__':
     main()

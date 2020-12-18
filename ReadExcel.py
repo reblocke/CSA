@@ -133,9 +133,8 @@ def histo_dx_includes(df, return_df=False):
 
     If return_df = true, will return in dataframe (with 'Dx', 'Count' as keys) instead of a series"""
 
-    # TODO: need to find and delete combination TE + other etiology postDx's
     histo = pd.Series({"TECSA":0,
-        "OSA-CSA":0,
+        # "OSA-CSA":0, Removed for now
         "Cardiac":0,
         "Neurologic":0,
         "Medication":0,
@@ -160,8 +159,8 @@ def histo_comorbs_includes(df):
         "htn":0,
         "dm":0,
         "ckd":0,
-        "psych":0,
-        "hiv":0})
+        # "hiv":0,
+        "psych":0})
 
     for comorb in df['Comorb']:
         comorb_str = str(comorb)
@@ -197,8 +196,8 @@ def histo_cns_includes(df):
         "cva":0,
         "neurodegenerative":0,
         "dementia":0,
-        "seizures":0,
-        "mass":0,
+        # "seizures":0,
+        # "mass":0,
         "chiari":0,
         "other":0})
 
@@ -256,15 +255,16 @@ def arrays_to_df(patient_array):
     df['FinalTx'] = df['FinalTx'].replace(
         {"cpap": "cpap",
         "bipap": "bipap",
+        "bipap w/ o2": "bipap-o2",
         "asv (resmed/ respironics)": "asv",
         "supplemental oxygen": "O2",
         "no treatment": "none",
         "other": "other",
+        "ivaps w/ o2": "ivaps-o2",
         "ivaps": "ivaps"})
-    FinalTxCat = pd.api.types.CategoricalDtype(categories=["ivaps", "asv",
-        "bipap", "cpap", "O2", "none", "other"], ordered=True)
+    FinalTxCat = pd.api.types.CategoricalDtype(categories=["ivaps-o2", "ivaps", "asv",
+        "bipap-o2", "bipap", "cpap", "O2", "none", "other"], ordered=True)
     df['FinalTx'] = df['FinalTx'].astype(FinalTxCat)
-
 #    OutcomeCat = pd.api.types.CategoricalDtype(categories=[
 #        "resolved w/ cpap", "failed cpap", "non-compliant", "n/a"], ordered=False)
 
@@ -291,8 +291,7 @@ def arrays_to_df(patient_array):
     df['TimeToASV'] = df['TimeToASV'].astype(timeToASVCat)
 
     df['InitTx'] = df.apply(infer_initial_treatment, axis=1)
-    initTxCat = pd.api.types.CategoricalDtype(categories=["ivaps", "asv",
-        "bipap", "cpap", "O2", "none", "other", "unknown"], ordered=True)
+    initTxCat = pd.api.types.CategoricalDtype(categories=["asv", "cpap", "not cpap/asv (or unknown)"], ordered=True)
     df['InitTx'] = df['InitTx'].astype(initTxCat)
 
     return df
@@ -300,7 +299,12 @@ def arrays_to_df(patient_array):
 
 def infer_initial_treatment(patient):
     """takes a patient (row) from the dataframe and infers what the initial treatment was, returned as string"""
-    init_tx = 'unknown'    # default
+    init_tx = 'not cpap/asv (or unknown)'    # default
+    if patient['FinalTx'] == "cpap":
+        init_tx = "cpap"
+    if patient['FinalTx'] == "bipap" or patient['FinalTx' == "bipap-o2"]:
+        if patient['Outcome'] == 'failed cpap':
+            init_tx = "cpap"
     if patient['FinalTx'] == "asv":
         if patient['ProcToASV'] == "initial treatment":
             init_tx = "asv"
@@ -308,18 +312,10 @@ def infer_initial_treatment(patient):
             init_tx = "cpap"    # Note: this is an assumption: all patients who trialed CPAP prior to ASV started w CPAP
         elif patient['Outcome'] == "failed cpap":
             init_tx = "cpap"    # Note: this is an assumption: all patients who failed CPAP prior to ASV started w CPAP
-    elif patient['FinalTx'] == "bipap":
-        if patient['Outcome'] == 'failed cpap':
-            init_tx = "cpap"
-    elif patient['FinalTx'] == "none" or patient['FinalTx'] == "O2" or patient['FinalTx'] == "other":
+    if patient['FinalTx'] == "none" or patient['FinalTx'] == "O2" or patient['FinalTx'] == "other":
         if patient['Outcome'] == 'failed cpap' or patient['Outcome'] == "never started cpap" \
-                or patient['Outcome'] == "non-compliant" or patient['Outcome'] == "resolved w/ cpap":
+                or patient['Outcome'] == "resolved w/ cpap":
             init_tx = "cpap"
-            # note: this assumes that patients who were noncompliant and ended on none or just O2 were non comp w CPAP
-        elif patient['Outcome'] == "n/a" or patient['Outcome'] == "never started on cpap":
-            init_tx = str(patient['FinalTx'])
-    elif patient['FinalTx'] == "cpap":
-        init_tx = "cpap"
     return init_tx
 
 
@@ -329,7 +325,7 @@ def matchDx(pt_dx):
     rep = {"te csa": "TECSA",
         "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"Neurologic",
         "primary csa (idiopathic csa)":"Primary",
-        "osa-associated":"OSA-CSA",
+        # "osa-associated":"OSA-CSA",  - removed, as these exclude now
         "csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)":"Medication",
         "csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)":"Cardiac"}
     for dx in pt_dx.split(","):
@@ -354,7 +350,7 @@ def matchComorbs(pt_comorb):
     """match the comorbidities up with the shorter labels"""
     new_comorb = list()
     rep = {"htn": "htn",
-           "hiv": "hiv",
+           # "hiv": "hiv",
            "dm": "dm",
            "psychiatric": "psych",
            "renal failure (creatinine>2mg/dl/ use of rrt/ cr clearance <30ml/min": "ckd",
@@ -385,18 +381,18 @@ def matchCNS(pt_cns):
     new_cns = list()
     rep = {"ischemic stroke": "cva",
            "neurodegenerative disease": "neurodegenerative",
-           "tbi": "tbi",
+           "tbi": "other",
            "dementia": "dementia",
-           "seizure disorder": "seizures",
-           "mass lesion": "mass",
+           "seizure disorder": "other",
+           "mass lesion": "other",
            "tia": "cva",
            "chiari malformation": "chiari",
            "traumatic brain injury": "tbi",
            "ms": "neurodegenerative",
            "epilepsy": "seizures",
-           "pituitary adenoma": "mass",
+           "pituitary adenoma": "other",
            "hemorrhagic stroke": "cva",
-           "tumor": "mass",
+           "tumor": "other",
            "other": "other",
            "cerebral palsy": "other",
            "seizures": "seizures",

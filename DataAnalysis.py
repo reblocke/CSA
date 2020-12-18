@@ -250,6 +250,11 @@ def new_make_tables(df):
                             count_string_indiv(count_osa_predom, num_osa_predom),
                             count_string_indiv(count_osa_pure, num_osa_pure)))
 
+    demo_row_labels.append("")
+    demographics.append(("", "", "", "", ""))  # empty row
+    demo_row_labels.append("")
+    demographics.append(("*Note:", "CKD defined as baseline serum creatinine of 2 mg/dl or use of renal replacement therapy", "", "", ""))
+
     demographics_df = pd.DataFrame(demographics, columns=column_labels, index=demo_row_labels)
 
     demographic_worksheet = workbook.worksheets[0]
@@ -419,7 +424,7 @@ def new_make_tables(df):
 
 
     # 'Outcome'
-    outcome_row_labels.append('OUTCOME')
+    outcome_row_labels.append('OUTCOME OF INITIAL PAP THERAPY')
     outcome.append(("", "", "", "", "")) # empty row
 
     for key in df['Outcome'].value_counts().keys():
@@ -466,14 +471,14 @@ def new_make_tables(df):
     cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")].sort_values(by='Outcome')
     medication_df = df.loc[df['PostDx'].str.contains("Medication")].sort_values(by='Outcome')
     tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")].sort_values(by='Outcome')
-    osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
+    # osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
     primary_df = df.loc[df['PostDx'].str.contains("Primary")].sort_values(by='Outcome')
 
     num_neurologic = len(neurologic_df.index)
     num_cardiac = len(cardiac_df.index)
     num_medication = len(medication_df.index)
     num_tecsa = len(tecsa_df.index)
-    num_osacsa = len(osacsa_df.index)
+    # num_osacsa = len(osacsa_df.index)
     num_primary = len(primary_df.index)
 
     column_etio_labels = ['All',
@@ -481,7 +486,7 @@ def new_make_tables(df):
                      'Cardiac Contributor',
                      'Medication Contributor',
                      'Treatment Emergent',
-                     'OSA-associated Centrals',
+                     # 'OSA-associated Centrals',
                      'Primary CSA']
 
     outcome_etio_row_labels = []
@@ -490,7 +495,7 @@ def new_make_tables(df):
     # 'Initial Treatment'
 
     outcome_etio_row_labels.append('INITIAL TREATMENT')
-    outcome_etio.append(("", "", "", "", "", "", "")) # empty row
+    outcome_etio.append(("", "", "", "", "", ""))  # , "")) # empty row
 
     for key in df['InitTx'].value_counts().keys():
         outcome_etio_row_labels.append(key)
@@ -512,10 +517,10 @@ def new_make_tables(df):
             count_tecsa = tecsa_df['InitTx'].value_counts()[key]
         except(KeyError):
             count_tecsa = 0
-        try:
-            count_osacsa = osacsa_df['InitTx'].value_counts()[key]
-        except(KeyError):
-            count_osacsa = 0
+        # try:
+        #     count_osacsa = osacsa_df['InitTx'].value_counts()[key]
+        # except(KeyError):
+        #     count_osacsa = 0
         try:
             count_primary = primary_df['InitTx'].value_counts()[key]
         except(KeyError):
@@ -526,16 +531,16 @@ def new_make_tables(df):
                             count_string_indiv(count_cardiac, num_cardiac),
                             count_string_indiv(count_medication, num_medication),
                             count_string_indiv(count_tecsa, num_tecsa),
-                            count_string_indiv(count_osacsa, num_osacsa),
+                            # count_string_indiv(count_osacsa, num_osacsa),
                             count_string_indiv(count_primary, num_primary)))
 
     outcome_etio_row_labels.append("")
-    outcome_etio.append(("", "", "", "", "", "", ""))  # empty row
+    outcome_etio.append(("", "", "", "", "", ""))  # , ""))  # empty row
 
     # 'Final Treatment'
 
     outcome_etio_row_labels.append('FINAL TREATMENT')
-    outcome_etio.append(("", "", "", "", "", "", "")) # empty row
+    outcome_etio.append(("", "", "", "", "", ""))  # , "")) # empty row
 
     for key in df['FinalTx'].value_counts().keys():
         outcome_etio_row_labels.append(key)
@@ -557,10 +562,10 @@ def new_make_tables(df):
             count_tecsa = tecsa_df['FinalTx'].value_counts()[key]
         except(KeyError):
             count_tecsa = 0
-        try:
-            count_osacsa = osacsa_df['FinalTx'].value_counts()[key]
-        except(KeyError):
-            count_osacsa = 0
+        # try:
+        #     count_osacsa = osacsa_df['FinalTx'].value_counts()[key]
+        # except(KeyError):
+        #     count_osacsa = 0
         try:
             count_primary = primary_df['FinalTx'].value_counts()[key]
         except(KeyError):
@@ -571,16 +576,16 @@ def new_make_tables(df):
                             count_string_indiv(count_cardiac, num_cardiac),
                             count_string_indiv(count_medication, num_medication),
                             count_string_indiv(count_tecsa, num_tecsa),
-                            count_string_indiv(count_osacsa, num_osacsa),
+                            #  count_string_indiv(count_osacsa, num_osacsa),
                             count_string_indiv(count_primary, num_primary)))
 
     outcome_etio_row_labels.append("")
-    outcome_etio.append(("", "", "", "", "", "", ""))  # empty row
+    outcome_etio.append(("", "", "", "", "", ""))  # , ""))  # empty row
 
     # 'Outcome'
 
-    outcome_etio_row_labels.append('OUTCOME')
-    outcome_etio.append(("", "", "", "", "", "", "")) # empty row
+    outcome_etio_row_labels.append('OUTCOME OF INITIAL PAP THERAPY')
+    outcome_etio.append(("", "", "", "", "", ""))  # , "")) # empty row
 
     for key in df['Outcome'].value_counts().keys():
         outcome_etio_row_labels.append(key)
@@ -602,10 +607,10 @@ def new_make_tables(df):
             count_tecsa = tecsa_df['Outcome'].value_counts()[key]
         except(KeyError):
             count_tecsa = 0
-        try:
-            count_osacsa = osacsa_df['Outcome'].value_counts()[key]
-        except(KeyError):
-            count_osacsa = 0
+        # try:
+        #     count_osacsa = osacsa_df['Outcome'].value_counts()[key]
+        # except(KeyError):
+        #     count_osacsa = 0
         try:
             count_primary = primary_df['Outcome'].value_counts()[key]
         except(KeyError):
@@ -616,7 +621,7 @@ def new_make_tables(df):
                             count_string_indiv(count_cardiac, num_cardiac),
                             count_string_indiv(count_medication, num_medication),
                             count_string_indiv(count_tecsa, num_tecsa),
-                            count_string_indiv(count_osacsa, num_osacsa),
+                            # count_string_indiv(count_osacsa, num_osacsa),
                             count_string_indiv(count_primary, num_primary)))
 
     outcome_etio_df = pd.DataFrame(outcome_etio, columns=column_etio_labels, index=outcome_etio_row_labels)
@@ -632,6 +637,7 @@ def new_make_tables(df):
 
     workbook.save("tables.xlsx")
     return
+
 
 def makeTables(df):
     """makes 3 tables on:
@@ -742,7 +748,7 @@ def makeTables(df):
         cell.style = 'Pandas'
         cell.alignment = Alignment(wrapText=True, vertical='center')
 
-    #TODO: do we want to include initial treatment? in the table 3
+    #  do we want to include initial treatment? in the table 3? we're doing it
 
     # Table 3 - Outcome
     outcome_row_labels = ['Initial Treatment','Final Treatment', 'Outcome']
@@ -780,14 +786,14 @@ def makeTables(df):
     cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")].sort_values(by='Outcome')
     medication_df = df.loc[df['PostDx'].str.contains("Medication")].sort_values(by='Outcome')
     tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")].sort_values(by='Outcome')
-    osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
+    # osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
     primary_df = df.loc[df['PostDx'].str.contains("Primary")].sort_values(by='Outcome')
 
     num_neurologic = len(neurologic_df.index)
     num_cardiac = len(cardiac_df.index)
     num_medication = len(medication_df.index)
     num_tecsa = len(tecsa_df.index)
-    num_osacsa = len(osacsa_df.index)
+    # num_osacsa = len(osacsa_df.index)
     num_primary = len(primary_df.index)
 
     column_etio_labels = ['All, n=%s' % num_total,
@@ -795,7 +801,7 @@ def makeTables(df):
                      'Cardiac Contributor, n=%s' % num_cardiac,
                      'Medication Contributor, n=%s' % num_medication,
                      'Treatment Emergent, n=%s' % num_tecsa,
-                     'OSA-associated Centrals, n=%s' % num_osacsa,
+                     # 'OSA-associated Centrals, n=%s' % num_osacsa,
                      'Primary CSA, n=%s' % num_primary]
 
     outcome_etio_row_labels = ['Initial Treatment', 'Final Treatment', 'Outcome']
@@ -805,21 +811,21 @@ def makeTables(df):
                     count_string(cardiac_df['InitTx'].value_counts(), num_cardiac),
                     count_string(medication_df['InitTx'].value_counts(), num_medication),
                     count_string(tecsa_df['InitTx'].value_counts(), num_tecsa),
-                    count_string(osacsa_df['InitTx'].value_counts(), num_osacsa),
+                    # count_string(osacsa_df['InitTx'].value_counts(), num_osacsa),
                     count_string(primary_df['InitTx'].value_counts(), num_primary)),
                     (count_string(df['FinalTx'].value_counts(), num_total),
                     count_string(neurologic_df['FinalTx'].value_counts(), num_neurologic),
                     count_string(cardiac_df['FinalTx'].value_counts(), num_cardiac),
                     count_string(medication_df['FinalTx'].value_counts(), num_medication),
                     count_string(tecsa_df['FinalTx'].value_counts(), num_tecsa),
-                    count_string(osacsa_df['FinalTx'].value_counts(), num_osacsa),
+                    # count_string(osacsa_df['FinalTx'].value_counts(), num_osacsa),
                     count_string(primary_df['FinalTx'].value_counts(), num_primary)),
                     (count_string(df['Outcome'].value_counts(), num_total),
                     count_string(neurologic_df['Outcome'].value_counts(), num_neurologic),
                     count_string(cardiac_df['Outcome'].value_counts(), num_cardiac),
                     count_string(medication_df['Outcome'].value_counts(), num_medication),
                     count_string(tecsa_df['Outcome'].value_counts(), num_tecsa),
-                    count_string(osacsa_df['Outcome'].value_counts(), num_osacsa),
+                    # count_string(osacsa_df['Outcome'].value_counts(), num_osacsa),
                     count_string(primary_df['Outcome'].value_counts(), num_primary))]
 
     outcome_etio_df = pd.DataFrame(outcome_etio, columns=column_etio_labels, index=outcome_etio_row_labels)
@@ -906,7 +912,7 @@ def sankeyTypeFinalTx(df):
                        unit=" Pt", gap=1.0, margin=0.1,
                        flows=flow,
                        labels=label,
-                       orientations=[1, 1, 0, -1, 1, 0, 1, -1, -1, -1, 1])
+                       orientations=[1, 1, 0, -1, 1, 0, 1, -1, -1, -1, 1, -1, 1])
 
     # sk.add(flows=[0.05, 0.05, 0.9, -0.20, -0.15, -0.05, -0.50, -0.10],
     #    labels=['In1', 'In2', 'In3', 'First', 'Second', 'Third', 'Fourth', 'Fifth'],
@@ -1191,8 +1197,8 @@ def outcome_by_csa_percent(df):
 
 
 def outcome_by_etio(df):
-    sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
-    f, axes = plt.subplots(6, 2, figsize=(9, 9))
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 6)) #still 6 if osa csa
+    f, axes = plt.subplots(5, 2, figsize=(9, 9)) # 6, 2 if OSA CSA
     sns.despine(top=True, bottom=True)
     f.suptitle("Outcome, Grouped by Contributing Etiology")
 
@@ -1201,7 +1207,7 @@ def outcome_by_etio(df):
     cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")].sort_values(by='Outcome')
     medication_df = df.loc[df['PostDx'].str.contains("Medication")].sort_values(by='Outcome')
     tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")].sort_values(by='Outcome')
-    osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
+    # osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
     primary_df = df.loc[df['PostDx'].str.contains("Primary")].sort_values(by='Outcome')
 
     # Create count plot for each Etio on the left, then a Pie Chart with proportion on the right
@@ -1237,42 +1243,45 @@ def outcome_by_etio(df):
                       bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
 
     # OSA-CSA
-    sns.countplot(y='Outcome', data=osacsa_df, ax=axes[3,0])
-    axes[3,0].set(xlabel="", ylabel="OSA-CSA")
-    osacsa_counts = osacsa_df['Outcome'].value_counts().sort_index()
-    osacsa_wedges, _, _ = axes[3, 1].pie(osacsa_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
-                                           textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
-                                           wedgeprops={'edgecolor': 'black'})
-    axes[3, 1].legend(osacsa_wedges, osacsa_counts.index, loc="center left",
-                      bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
+    # sns.countplot(y='Outcome', data=osacsa_df, ax=axes[3,0])
+    # axes[3,0].set(xlabel="", ylabel="OSA-CSA")
+    # osacsa_counts = osacsa_df['Outcome'].value_counts().sort_index()
+    # osacsa_wedges, _, _ = axes[3, 1].pie(osacsa_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+    #                                        textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+    #                                        wedgeprops={'edgecolor': 'black'})
+    # axes[3, 1].legend(osacsa_wedges, osacsa_counts.index, loc="center left",
+    #                   bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
+
+    # If adding OSA-CSA back, would need to increase by 1 all of the axes indices
+
     # TE-CSA
-    sns.countplot(y='Outcome', data=tecsa_df, ax=axes[4,0])
-    axes[4,0].set(xlabel="", ylabel="TE-CSA")
+    sns.countplot(y='Outcome', data=tecsa_df, ax=axes[3,0])
+    axes[3,0].set(xlabel="", ylabel="TE-CSA")
     tecsa_counts = tecsa_df['Outcome'].value_counts().sort_index()
-    tecsa_wedges, _, _ = axes[4, 1].pie(tecsa_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+    tecsa_wedges, _, _ = axes[3, 1].pie(tecsa_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
                                            textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
                                            wedgeprops={'edgecolor': 'black'})
-    axes[4, 1].legend(tecsa_wedges, tecsa_counts.index, loc="center left",
+    axes[3, 1].legend(tecsa_wedges, tecsa_counts.index, loc="center left",
                       bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
 
     #Primary
-    sns.countplot(y='Outcome', data=primary_df, ax=axes[5,0])
-    axes[5,0].set(xlabel="Outcome of initial treatment by etiology", ylabel="Primary CSA")
+    sns.countplot(y='Outcome', data=primary_df, ax=axes[4,0])
+    axes[4,0].set(xlabel="Outcome of initial treatment by etiology", ylabel="Primary CSA")
     primary_counts = primary_df['Outcome'].value_counts().sort_index()
-    primary_wedges, _, _ = axes[5, 1].pie(primary_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+    primary_wedges, _, _ = axes[4, 1].pie(primary_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
                                            textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
                                            wedgeprops={'edgecolor': 'black'})
-    axes[5, 1].legend(primary_wedges, primary_counts.index, loc="center left",
+    axes[4, 1].legend(primary_wedges, primary_counts.index, loc="center left",
                       bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
-    axes[5, 1].set(xlabel="\nProportion with each outcome\nby etiology")
+    axes[4, 1].set(xlabel="\nProportion with each outcome\nby etiology")
 
     # Combined X axis for L side
-    axes[5, 0].get_shared_x_axes().join(axes[5, 0], axes[4, 0], axes[3, 0], axes[2, 0], axes[1, 0], axes[0, 0])
+    axes[4, 0].get_shared_x_axes().join(axes[4, 0], axes[3, 0], axes[2, 0], axes[1, 0], axes[0, 0]) # axes[5, 0] would need to be added back
     axes[0, 0].set_xticklabels("")
     axes[1, 0].set_xticklabels("")
     axes[2, 0].set_xticklabels("")
     axes[3, 0].set_xticklabels("")
-    axes[4, 0].set_xticklabels("")
+    # axes[4, 0].set_xticklabels("")
     # Leave bottom aka [5,0] labels in
 
     # Resize all
@@ -1281,7 +1290,7 @@ def outcome_by_etio(df):
     axes[2, 0].autoscale()
     axes[3, 0].autoscale()
     axes[4, 0].autoscale()
-    axes[5, 0].autoscale()
+    # axes[5, 0].autoscale()
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
     f.savefig('Outcome by Etio.png', dpi=100)
@@ -1290,7 +1299,7 @@ def outcome_by_etio(df):
 def init_tx_by_etio(df):
     sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
 
-    f, axes = plt.subplots(6, 1, figsize=(6, 9), sharex=True)
+    f, axes = plt.subplots(5, 1, figsize=(6, 9), sharex=True) # 6 if osa csa
     sns.despine(top=True, bottom=True)
     f.suptitle("Initial Treatment Modality, Grouped by Contributing Etiology")
 
@@ -1299,7 +1308,7 @@ def init_tx_by_etio(df):
     cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")]
     medication_df = df.loc[df['PostDx'].str.contains("Medication")]
     tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")]
-    osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")]
+    # osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")]
     primary_df = df.loc[df['PostDx'].str.contains("Primary")]
 
     sns.countplot(y='InitTx', data=neurologic_df, ax=axes[0])
@@ -1311,14 +1320,14 @@ def init_tx_by_etio(df):
     sns.countplot(y='InitTx', data=medication_df, ax=axes[2])
     axes[2].set(xlabel="", ylabel="Medication")
 
-    sns.countplot(y='InitTx', data=osacsa_df, ax=axes[3])
-    axes[3].set(xlabel="", ylabel="OSA-CSA")
+    # sns.countplot(y='InitTx', data=osacsa_df, ax=axes[3])
+    # axes[3].set(xlabel="", ylabel="OSA-CSA")
 
-    sns.countplot(y='InitTx', data=tecsa_df, ax=axes[4])
-    axes[4].set(xlabel="", ylabel="TE-CSA")
+    sns.countplot(y='InitTx', data=tecsa_df, ax=axes[3])
+    axes[3].set(xlabel="", ylabel="TE-CSA")
 
-    sns.countplot(y='InitTx', data=primary_df, ax=axes[5])
-    axes[5].set(xlabel="Patients who initially received each treatment modality", ylabel="Primary CSA")
+    sns.countplot(y='InitTx', data=primary_df, ax=axes[4])
+    axes[4].set(xlabel="Patients who initially received each treatment modality", ylabel="Primary CSA")
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
     f.savefig('Init Treatment by Etiology.png', dpi=100)

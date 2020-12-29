@@ -13,7 +13,7 @@ def sheet_to_arrays(excel_sheet):
     # Name_Column = 1
     # MRN_Column = 2
     # DOB_Column = 3
-    Age_Column = 4 # Age at diag sleep study
+    Age_Column = 4  # Age at diag sleep study
     Sex_Column = 5
     Race_Column = 6
     # Zip_Column = 7
@@ -23,21 +23,21 @@ def sheet_to_arrays(excel_sheet):
     Heart_Column = 11
     CNS_Column = 12
     Base_Dx_Column = 13
-    AHI_Column = 14 # Diagnostic AHI
+    AHI_Column = 14  # Diagnostic AHI
     Post_Dx_Column = 15
     Final_Tx_Column = 16
     Outcome_Column = 17
     Path_ASV_Column = 18
     Time_ASV_Column = 19
     # Loc_Column = 20
-    # Sleep_Study_Column = 21
+    Sleep_Study_Column = 21
 
     Patients = list()
 
     # print("Processing excel spreadsheet")
     i = 1
 
-    for patient in excel_sheet.iter_rows():
+    for patient in excel_sheet.iter_rows(max_row=498):  # not sure why I needed to manually hardcode this - size of db
         # For each row that has an MRN entry...
         # print("Processing chart #" + str(i))
         row = list()
@@ -109,20 +109,27 @@ def sheet_to_arrays(excel_sheet):
         except(ValueError, TypeError, AttributeError):
             print("Outcome Column Error: Row " + str(i))
             row.append(None)
-
         try:
             row.append(patient[Path_ASV_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
             print("Path to ASV Column Error: Row " + str(i))
             row.append(None)
+
         try:
             row.append(patient[Time_ASV_Column].value.lower().strip())
         except(ValueError, TypeError, AttributeError):
             print("Time to ASV Column Error: Row " + str(i))
             row.append(None)
+
+        try:
+            row.append(patient[Sleep_Study_Column].value.lower().strip())
+        except(ValueError, TypeError, AttributeError):
+            print("Sleep Study Type Column Error: Row " + str(i))
+            row.append(None)
         Patients.append(row)
         i = i+1
 
+    # print(Patients[1:])
     return Patients[1:]  # take off the first row = labels
 
 
@@ -149,7 +156,7 @@ def histo_dx_includes(df, return_df=False):
     if return_df is False:
         return histo
     else:
-        return pd.DataFrame({"Dx": histo.index, "Count": histo.data})
+        return pd.DataFrame({"Dx": histo.index, "Count": histo.values})
 
 def histo_comorbs_includes(df):
     """Returns a histogram (pandas series) of comorbidities where a comorbidity of
@@ -220,7 +227,7 @@ def arrays_to_df(patient_array):
 
     df = pd.DataFrame.from_records(patient_array, columns=['ID', 'Age',  'Sex', 'Race', 'Smoking', 'BMI', 'Comorb',
                                                            'Heart', 'CNS', 'AHI', 'BaseDx', 'PostDx', 'FinalTx',
-                                                           'Outcome', "ProcToASV", "TimeToASV"])  #AHI_label added after
+                                                           'Outcome', "ProcToASV", "TimeToASV", "StudyType"])  #AHI_label added after
 
     df['Sex'] = df['Sex'].astype('category')
 
@@ -259,11 +266,12 @@ def arrays_to_df(patient_array):
         "asv (resmed/ respironics)": "asv",
         "supplemental oxygen": "O2",
         "no treatment": "none",
-        "other": "other",
-        "ivaps w/ o2": "ivaps-o2",
-        "ivaps": "ivaps"})
-    FinalTxCat = pd.api.types.CategoricalDtype(categories=["ivaps-o2", "ivaps", "asv",
-        "bipap-o2", "bipap", "cpap", "O2", "none", "other"], ordered=True)
+        "MAD":"mad",
+        "avaps": "niv",
+        "ivaps w/ o2": "niv-o2",
+        "ivaps": "niv"})
+    FinalTxCat = pd.api.types.CategoricalDtype(categories=["niv-o2", "niv", "asv",
+        "bipap-o2", "bipap", "cpap", "mad", "O2", "none"], ordered=True)
     df['FinalTx'] = df['FinalTx'].astype(FinalTxCat)
 #    OutcomeCat = pd.api.types.CategoricalDtype(categories=[
 #        "resolved w/ cpap", "failed cpap", "non-compliant", "n/a"], ordered=False)
@@ -294,7 +302,48 @@ def arrays_to_df(patient_array):
     initTxCat = pd.api.types.CategoricalDtype(categories=["asv", "cpap", "not cpap/asv (or unknown)"], ordered=True)
     df['InitTx'] = df['InitTx'].astype(initTxCat)
 
+    df['StudyType'] = df['StudyType'].astype('category')
+
     return df
+
+
+def blow_out_comorbs_cv_neuro(df):
+    '''takes the finished (preprocessed) database dataframe and separates all the comorbidity, heart disease, and cns
+    disease into individual disorders and true vs false whether the patient has them or not
+
+    e.g. instead of Psych+HTN would be
+    psych true
+    HTN true
+    DM false
+    etc.
+
+    Adds these as separate columns
+
+        histo = pd.Series({"none":0,
+        "htn":0,
+        "dm":0,
+        "ckd":0,
+        # "hiv":0,
+        "psych":0})
+
+        {"none":0,
+        "cad":0,
+        "afib":0,
+        "hfpef":0,
+        "hfref":0,
+        "other":0}
+
+        {"none":0,
+        "cva":0,
+        "neurodegenerative":0,
+        "dementia":0,
+        # "seizures":0,
+        # "mass":0,
+        "chiari":0,
+        "other":0}
+        '''
+
+    pass
 
 
 def infer_initial_treatment(patient):
@@ -346,6 +395,7 @@ def ahi_label(ahi):
     else:
         return "error"  # shouldn't happen, will cause flag at conversion to type
 
+
 def matchComorbs(pt_comorb):
     """match the comorbidities up with the shorter labels"""
     new_comorb = list()
@@ -358,6 +408,7 @@ def matchComorbs(pt_comorb):
     for comorb in pt_comorb.split(","):
         new_comorb.append(rep[comorb.strip().lower()])
     return '+'.join(sorted(new_comorb))
+
 
 def matchHeart(pt_heart):
     """match the heart comorbidities up with the shorter labels"""
@@ -375,6 +426,7 @@ def matchHeart(pt_heart):
     for heart in pt_heart.split(","):
         new_heart.append(rep[heart.strip().lower()])
     return '+'.join(sorted(new_heart))
+
 
 def matchCNS(pt_cns):
     """match the heart comorbidities up with the shorter labels"""
@@ -401,6 +453,7 @@ def matchCNS(pt_cns):
         new_cns.append(rep[cns.strip().lower()])
     return '+'.join(sorted(new_cns))
 
+
 def test_db_gen():
     # db = RecordsDb()
     pass
@@ -415,6 +468,7 @@ def main():
     else:
         # run the main program
         pass
+
 
 if __name__ == '__main__':
     main()

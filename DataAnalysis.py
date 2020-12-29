@@ -7,6 +7,7 @@ import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
+from sklearn.preprocessing import LabelEncoder
 
 
 def summary_stats(df):
@@ -241,6 +242,41 @@ def new_make_tables(df):
             count_osa_predom = 0
         try:
             count_osa_pure = OSA_pure['AHI_label'].value_counts(dropna=False)[severity]
+        except(KeyError):
+            count_osa_pure = 0
+
+        demographics.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_csa_pure, num_csa_pure),
+                            count_string_indiv(count_csa_predom, num_csa_predom),
+                            count_string_indiv(count_osa_predom, num_osa_predom),
+                            count_string_indiv(count_osa_pure, num_osa_pure)))
+
+    demo_row_labels.append("")
+    demographics.append(("", "", "", "", ""))  # empty row
+
+    # Diagnostic Test
+
+    demo_row_labels.append('DIAGNOSTIC TEST')
+    demographics.append(("", "", "", "", "")) # empty row
+
+    for status in df['StudyType'].value_counts().keys():
+        demo_row_labels.append(status)
+        count_total = df['StudyType'].value_counts()[status]
+
+        try:
+            count_csa_pure = CSA_pure["StudyType"].value_counts()[status]
+        except(KeyError):
+            count_csa_pure = 0
+        try:
+            count_csa_predom = CSA_predom["StudyType"].value_counts()[status]
+        except(KeyError):
+            count_csa_predom = 0
+        try:
+            count_osa_predom = OSA_predom["StudyType"].value_counts()[status]
+        except(KeyError):
+            count_osa_predom = 0
+        try:
+            count_osa_pure = OSA_pure["StudyType"].value_counts(dropna=False)[status]
         except(KeyError):
             count_osa_pure = 0
 
@@ -491,6 +527,51 @@ def new_make_tables(df):
 
     outcome_etio_row_labels = []
     outcome_etio = []
+
+    # Diagnostic Test
+
+    outcome_etio_row_labels.append('DIAGNOSTIC TEST')
+    outcome_etio.append(("", "", "", "", "", ""))  # , "")) # empty row
+
+    for key in df["StudyType"].value_counts().keys():
+        outcome_etio_row_labels.append(key)
+        count_total = df["StudyType"].value_counts()[key]
+
+        try:
+            count_neurologic = neurologic_df["StudyType"].value_counts()[key]
+        except(KeyError):
+            count_neurologic = 0
+        try:
+            count_cardiac = cardiac_df["StudyType"].value_counts()[key]
+        except(KeyError):
+            count_cardiac = 0
+        try:
+            count_medication = medication_df["StudyType"].value_counts()[key]
+        except(KeyError):
+            count_medication = 0
+        try:
+            count_tecsa = tecsa_df["StudyType"].value_counts()[key]
+        except(KeyError):
+            count_tecsa = 0
+        # try:
+        #     count_osacsa = osacsa_df["StudyType"].value_counts()[key]
+        # except(KeyError):
+        #     count_osacsa = 0
+        try:
+            count_primary = primary_df["StudyType"].value_counts()[key]
+        except(KeyError):
+            count_primary = 0
+
+        outcome_etio.append((count_string_indiv(count_total, num_total),
+                            count_string_indiv(count_neurologic, num_neurologic),
+                            count_string_indiv(count_cardiac, num_cardiac),
+                            count_string_indiv(count_medication, num_medication),
+                            count_string_indiv(count_tecsa, num_tecsa),
+                            # count_string_indiv(count_osacsa, num_osacsa),
+                            count_string_indiv(count_primary, num_primary)))
+
+    outcome_etio_row_labels.append("")
+    outcome_etio.append(("", "", "", "", "", ""))  # , ""))  # empty row
 
     # 'Initial Treatment'
 
@@ -955,7 +1036,7 @@ def sankeyTypeOutcome(df):
 
 def vis_hist_etio(df):
     post_dx_histo = histo_dx_includes(df)
-    hist_df = pd.DataFrame({"Dx": post_dx_histo.index, "Count": post_dx_histo.data})
+    hist_df = pd.DataFrame({"Dx": post_dx_histo.index, "Count": post_dx_histo.values})
     # print(hist_df)
     # hist_df = hist_df.drop(1)
     sns.set()
@@ -1334,6 +1415,85 @@ def init_tx_by_etio(df):
     # plt.show()
 
 
+def test_by_etio(df):
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 2))
+
+    f, axes = plt.subplots(5, 1, figsize=(4, 9), sharex=True) # 6 if osa csa
+    sns.despine(top=True, bottom=True)
+    f.suptitle("Diagnostic Test\nGrouped by Contributing Etiology")
+
+    # contains used instead of equal to include patients with multiple etio (e.g. cardiac+medication count to both)
+    neurologic_df = df.loc[df['PostDx'].str.contains("Neurologic")].sort_values(by='StudyType')
+    cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")].sort_values(by='StudyType')
+    medication_df = df.loc[df['PostDx'].str.contains("Medication")].sort_values(by='StudyType')
+    tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")].sort_values(by='StudyType')
+    # osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
+    primary_df = df.loc[df['PostDx'].str.contains("Primary")].sort_values(by='StudyType')
+
+    # Create count plot for each Etio on the left, then a Pie Chart with proportion on the right
+
+    # Neurologic
+    axes[0].set(xlabel="", ylabel="Neurologic")
+    neuro_counts = neurologic_df['StudyType'].value_counts().sort_index()
+    neuro_wedges, _, _ = axes[0].pie(neuro_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+                                        textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                        wedgeprops={'edgecolor': 'black'})
+    axes[0].legend(neuro_wedges, neuro_counts.index, loc="center left",
+                      bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
+
+    # Cardiac
+    axes[1].set(xlabel="", ylabel="Cardiac")
+    cardiac_counts = cardiac_df['StudyType'].value_counts().sort_index()
+    cardiac_wedges, _, _ = axes[1].pie(cardiac_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+                                          textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                          wedgeprops={'edgecolor': 'black'})
+    axes[1].legend(cardiac_wedges, cardiac_counts.index, loc="center left",
+                      bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
+
+    # Medication
+    axes[2].set(xlabel="", ylabel="Medication")
+    medication_counts = medication_df['StudyType'].value_counts().sort_index()
+    medication_wedges, _, _ = axes[2].pie(medication_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+                                             textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                             wedgeprops={'edgecolor': 'black'})
+    axes[2].legend(medication_wedges, medication_counts.index, loc="center left",
+                      bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
+
+    # OSA-CSA
+    # axes[3].set(xlabel="", ylabel="OSA-CSA")
+    # osacsa_counts = osacsa_df['Outcome'].value_counts().sort_index()
+    # osacsa_wedges, _, _ = axes[3].pie(osacsa_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+    #                                        textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+    #                                        wedgeprops={'edgecolor': 'black'})
+    # axes[3].legend(osacsa_wedges, osacsa_counts.index, loc="center left",
+    #                   bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
+
+    # If adding OSA-CSA back, would need to increase by 1 all of the axes indices
+
+    # TE-CSA
+    axes[3].set(xlabel="", ylabel="TE-CSA")
+    tecsa_counts = tecsa_df['StudyType'].value_counts().sort_index()
+    tecsa_wedges, _, _ = axes[3].pie(tecsa_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+                                        textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                        wedgeprops={'edgecolor': 'black'})
+    axes[3].legend(tecsa_wedges, tecsa_counts.index, loc="center left",
+                      bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
+
+    # Primary
+    axes[4].set(xlabel="Outcome of initial treatment by etiology", ylabel="Primary CSA")
+    primary_counts = primary_df['StudyType'].value_counts().sort_index()
+    primary_wedges, _, _ = axes[4].pie(primary_counts, autopct="%1.1f%%", startangle=0, pctdistance=1.35,
+                                          textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                          wedgeprops={'edgecolor': 'black'})
+    axes[4].legend(primary_wedges, primary_counts.index, loc="center left",
+                      bbox_to_anchor=(1, 0, 0.5, 1), fontsize='x-small')
+    axes[4].set(xlabel="\nProportion using each diagnostic \ntest, grouped by etiology")
+
+    f.tight_layout(rect=[0, 0, 1, 0.95])
+    f.savefig('Diag Test by Etiology.png', dpi=100)
+    # plt.show()
+
+
 def init_tx_by_csa(df):
     sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
 
@@ -1392,6 +1552,60 @@ def final_tx_by_csa(df):
     f.savefig('Final Treatment by Perc CSA.png', dpi=100)
     # plt.show()
     return
+
+
+def test_by_csa(df):
+    """creates a horizontal count chart with counts of each etiology and a pie chart with the proportion,
+     grouped by percentage of CSA"""
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 3))
+    f, axes = plt.subplots(4, 1, figsize=(4, 9))#, sharex=True)
+    sns.despine(top=True, bottom=True)
+    f.suptitle("Diagnostic Test\nGrouped by %Central Events")
+
+    OSA_pure_df = df.loc[df['BaseDx'] == "Mainly OSA"]
+    OSA_predom_df = df.loc[df['BaseDx'] == "Combined OSA/CSA"]
+    CSA_predom_df = df.loc[df['BaseDx'] == "Predominantly CSA"]
+    CSA_pure_df = df.loc[df['BaseDx'] == "Pure CSA"]
+
+    OSA_pure_hist = OSA_pure_df['StudyType'].value_counts()
+    OSA_predom_hist = OSA_predom_df['StudyType'].value_counts()
+    CSA_predom_hist = CSA_predom_df['StudyType'].value_counts()
+    CSA_pure_hist = CSA_pure_df['StudyType'].value_counts()
+
+    # Pure OSA
+    axes[0].set(xlabel="", ylabel="<10% Central Events")
+    osa_pure_wedges, _, _ = axes[0].pie(OSA_pure_hist, autopct="%1.1f%%", startangle=0, pctdistance=1.25,
+                                             textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                             wedgeprops={'edgecolor': 'black'})
+    axes[0].legend(osa_pure_wedges, OSA_pure_hist.keys(), loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+
+    # Predom OSA
+    axes[1].set(xlabel="", ylabel="10-50% Central Events")
+    osa_predom_wedges, _, _ = axes[1].pie(OSA_predom_hist, autopct="%1.1f%%", startangle=0, pctdistance=1.25,
+                                             textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                             wedgeprops={'edgecolor': 'black'})
+    axes[1].legend(osa_predom_wedges, OSA_predom_hist.keys(), loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+
+    # Predom CSA
+    axes[2].set(xlabel="", ylabel="50-90% Central Events")
+
+    csa_predom_wedges, _, _ = axes[2].pie(CSA_predom_hist, autopct="%1.1f%%", startangle=0, pctdistance=1.25,
+                                             textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                             wedgeprops={'edgecolor': 'black'})
+    axes[2].legend(csa_predom_wedges, CSA_predom_hist.keys(), loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+
+    # Pure CSA
+    axes[3].set(xlabel="Patients With Each Etiology Contributing to Central Events", ylabel=">90% Central Events")
+
+    csa_pure_wedges, _, _ = axes[3].pie(CSA_pure_hist, autopct="%1.1f%%", startangle=0, pctdistance=1.25,
+                                             textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
+                                             wedgeprops={'edgecolor': 'black'})
+    axes[3].legend(csa_pure_wedges, CSA_pure_hist.keys(), loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    axes[3].set(xlabel="\nProportion using each type \nof diagnostic test")
+
+    f.tight_layout(rect=[0, 0, 1, 0.95]) # .95 to leave space for title
+    f.savefig('Diag Test by percentage CSA.png', dpi=100)
+    # plt.show()
 
 
 def etio_by_csa(df):
@@ -1530,6 +1744,213 @@ def visualizations(df):
     plt.show()
 
 
+def coded_output(database_df, output_loc='coded_output.xlsx'):
+    """ takes the database dataframe as input
+    makes an output excel with integer codes for value (as opposed to the categorical -
+    e.g. male = 0, female = 1
+
+    writes them to
+    output_loc - for the encoded database
+    keys_output_loc - for the keys
+
+    Goal:
+    ID no coding
+    Age no coding
+    Sex coded
+    Race coded
+    Smoking coded
+    BMI no coding
+    Comorbs broken into
+    -   HTN T / F
+    -   DM
+    -   Psych
+    -   Renal
+    -   Heart?
+    -   CNS
+    -   Opiate
+    AHI no coding
+    HFrEF y/n
+    HFpEF and AF  ([ ] is it possible? HFpEF vs HFrEF coded?)
+    HFrEF and AF y/n
+    Stroke y/n
+    Dementia or neurodegen
+    Dementia and stroke or neurodegen
+    Final Treatment
+    Category of OSA
+    Dx Study
+
+    """
+
+    LE = LabelEncoder()
+    output_df = pd.DataFrame()
+    labels_ser = pd.Series()
+
+    # ID no coding
+    output_df["ID"] = database_df["ID"]
+    labels_ser["ID"] = "no coding"
+
+    # Age no coding
+    output_df["Age"] = database_df['Age']
+    labels_ser["Age"] = "no coding"
+
+    # Sex coded
+    LE.fit(database_df['Sex'])
+    labels_ser['Sex'] = create_key_string(list(LE.classes_))
+    output_df['Sex'] = LE.transform(database_df['Sex'])
+
+    # Race coded
+    LE.fit(database_df['Race'])
+    labels_ser['Race'] = create_key_string(list(LE.classes_))
+    output_df['Race'] = LE.transform(database_df['Race'])
+
+    # Smoking coded
+    LE.fit(database_df['Smoking'])
+    labels_ser['Smoking'] = create_key_string(list(LE.classes_))
+    output_df['Smoking'] = LE.transform(database_df['Smoking'])
+
+    # BMI no coding
+    output_df["BMI"] = database_df["BMI"]
+    labels_ser["BMI"] = "no coding"
+
+    # Comorbs broken into:
+    # -   HTN T / F
+    output_df["has_htn"] = database_df['Comorb'].apply(dz_is_in, args=("htn",))
+    labels_ser["has_htn"] = "0 = no HTN, 1 = has HTN"
+
+    # -   DM
+    output_df["has_dm"] = database_df['Comorb'].apply(dz_is_in, args=("dm",))
+    labels_ser["has_dm"] = "0 = no DM, 1 = has DM"
+
+    # -   Psych
+    output_df["has_psych"] = database_df['Comorb'].apply(dz_is_in, args=("psych",))
+    labels_ser["has_psych"] = "0 = no psych, 1 = has psych"
+
+    # -   Renal
+    output_df["has_ckd"] = database_df['Comorb'].apply(dz_is_in, args=("ckd",))
+    labels_ser["has_ckd"] = "0 = no CKD, 1 = has CKD"
+
+    # -   Heart?
+    output_df["has_cv"] = database_df["Heart"].apply(is_dz_free)
+    labels_ser["has_cv"] = "0 = no CV disease, 1 = has some CV disease"
+
+    output_df["has_cv2"] = database_df['PostDx'].apply(dz_is_in, args=("Cardiac",))
+    labels_ser["has_cv2"] = "0 = no CV disease, 1 = has some CV disease"
+
+    # -   CNS
+    output_df["has_cns"] = database_df["CNS"].apply(is_dz_free)
+    labels_ser["has_cns"] = "0 = no CNS disease, 1 = has some CNS disease"
+
+    output_df["has_cns2"] = database_df['PostDx'].apply(dz_is_in, args=("Neurologic",))
+    labels_ser["has_cv2"] = "0 = no CNS disease, 1 = has some CNS disease"
+
+    # -   Opiate
+    output_df["has_opiate"] = database_df['PostDx'].apply(dz_is_in, args=("Medication",))
+    labels_ser["has_opiate"] = "0 = no opiate, 1 = on opiates"
+
+    # AHI no coding
+    output_df["AHI"] = database_df["AHI"]
+    labels_ser["AHI"] = "no coding"
+
+    # HFrEF y/n
+    output_df["has_hfref"] = database_df["Heart"].apply(dz_is_in, args=("hfref",))
+    labels_ser["has_hfref"] = "0 = no hfref, 1 = has hfref"
+
+    #TODO: HfpEF y/n? Afib y/n?
+
+    # HFpEF and AF
+    output_df["has_hfpef_and_af"] = database_df["Heart"].apply(dzs_are_in, args=("hfpef", "afib",))
+    labels_ser["has_hfpef_and_af"] = "0 = no hfpef or no afib, 1 = has both hfpef and af"
+
+    # HFrEF and AF y/n
+    output_df["has_hfref_and_af"] = database_df["Heart"].apply(dzs_are_in, args=("hfref", "afib",))
+    labels_ser["has_hfref_and_af"] = "0 = no hfref or no afib, 1 = has both hfref and af"
+
+    # Stroke y/n
+    output_df["has_cva"] = database_df["CNS"].apply(dz_is_in, args=("cva",))
+    labels_ser["has_cva"] = "0 = no cva, 1 = has had a cva"
+
+    # Dementia or neurodegen
+
+    # output_df["has_dementia"] = database_df["CNS"].apply(dz_is_in, args=("dementia",))
+    # labels_ser["has_dementia"] = "0 = no dementia, 1 = has dementia"
+    # output_df["has_neurodegen"] = database_df["CNS"].apply(dz_is_in, args=("neurodegenerative",))
+    # labels_ser["has_neurodegen"] = "0 = no neurodegenerative disorder, 1 = has neurodegenerative disorder"
+
+    # then add those two together, then round 2 (= has both) back to 1 (= has any)
+    output_df["has_dem_or_neurodegen"] = (database_df["CNS"].apply(dz_is_in, args=("dementia",)) + \
+                                         database_df["CNS"].apply(dz_is_in, args=("neurodegenerative",))).replace(2, 1)
+    labels_ser["has_dem_or_neurodegen"] = "0 = no dementia or neurodegen, 1 = has dementia or neurodegen"
+
+    # Dementia and (stroke or neurodegen)
+
+    output_df["has_neurodegen_and_cva"] = database_df["CNS"].apply(dzs_are_in, args=("neurodegenerative", "cva",))
+    labels_ser["has_neurodegen_and_cva"] = "0 = no cva or no neurodegen, 1 = has both cva and neurodegen"
+    output_df["has_dem_and_cva"] = database_df["CNS"].apply(dzs_are_in, args=("dementia", "cva",))
+    labels_ser["has_dem_and_cva"] = "0 = no cva or no dementia, 1 = has both cva and dementia"
+
+    # then add those two together, then round 2 (= has both) back to 1 (= has any)
+    output_df["has_dem_and_cva_or_degen"] = (database_df["CNS"].apply(dzs_are_in, args=("neurodegenerative", "cva",)) + \
+                                            database_df["CNS"].apply(dzs_are_in, args=("dementia", "cva",))).replace(2,1)
+    labels_ser["has_dem_and_cva_or_degen"] = "1 = has (dem and cva) or (neurodegen and cva), 0 = doesn't have those combos"
+
+    # Final Treatment
+    LE.fit(database_df['FinalTx'])
+    labels_ser['FinalTx'] = create_key_string(list(LE.classes_))
+    output_df['FinalTx'] = LE.transform(database_df['FinalTx'])
+
+    # Category of OSA
+    LE.fit(database_df['BaseDx'])
+    labels_ser['PercOSA'] = create_key_string(list(LE.classes_))  #  Perc(entage) OSA: more descriptive term for BaseDx
+    output_df['PercOSA'] = LE.transform(database_df['BaseDx'])
+
+    # Dx Study
+    LE.fit(database_df['StudyType'])
+    labels_ser['StudyType'] = create_key_string(list(LE.classes_))
+    output_df['StudyType'] = LE.transform(database_df['StudyType'])
+
+    output_df.to_excel(output_loc)
+    labels_ser.to_excel("keys_"+output_loc)
+    return
+
+
+def dz_is_in(dz_string, substring):
+    """ returns 0 if substring is NOT in dz_string
+    returns 1 if substring is in dz_string"""
+    if substring not in dz_string:
+        return 0
+    else:
+        return 1
+
+
+def dzs_are_in(dz_string, substring1, substring2):
+    """ returns 1 if both substrings are in dz_string
+    otherwise, returns 0"""
+    if substring1 not in dz_string:
+        return 0
+    elif substring2 not in dz_string:
+        return 0
+    else:
+        return 1
+
+def is_dz_free(dz_string, substring="none"):
+    """ returns 0 if the return substring is in dz_string
+    default substring is none, meaning that if CV = none, patient is disease free
+    returns 1 if substring is not in dz_string"""
+    if substring not in dz_string:
+        return 1
+    else:
+        return 0
+
+def create_key_string(classes):
+    '''takes the list of classes from the LabelEncoder and puts them in to a string to function as a key,
+     and subsequently be appended to the output encoded dataframe at the end'''
+
+    output_str = ""
+    for i in range(len(classes)):
+        output_str += str(i) + " = " + str(classes[i]) + ",  "
+    return output_str
+
+
 def main():
     # Location of Db file
     db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
@@ -1538,6 +1959,7 @@ def main():
     df.to_excel('output.xlsx')
     #printSumByBaseDx(df)
     #makeTables(df)
+    coded_output(df)
     new_make_tables(df)
 
     # print("\n\n---Total of number of patients where each etiology was contributory---")
@@ -1559,6 +1981,8 @@ def main():
     sankeyTypeOutcome(df)
     outcome_by_csa_percent(df)
     sankeyTypeFinalTx(df)
+    test_by_etio(df)
+    test_by_csa(df)
 
 if __name__ == '__main__':
     main()

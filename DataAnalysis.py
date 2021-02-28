@@ -82,10 +82,10 @@ def new_make_tables(df):
     num_osa_pure = len(OSA_pure.index)
 
     column_labels = ['All',
-                     'Pure CSA (90+% Central Events)',
-                     'Predominantly CSA (50-90% Central Events)',
-                     'Combined OSA/CSA (10-50% Central Events)',
-                     'Mainly OSA (<10% Central Events)']
+                     'Pure CSA (90+% CSA)',
+                     'Predominantly CSA (50-90% CSA)',
+                     'Combined OSA/CSA (10-49.9% CSA)',
+                     'Mainly OSA (<10% CSA)']
 
     workbook = Workbook()
 
@@ -187,15 +187,20 @@ def new_make_tables(df):
 
     # BMI
     demo_row_labels.append('BMI')
-    demographics.append((iqr_string(df['BMI'].describe()), iqr_string(CSA_pure['BMI'].describe()),
-                     iqr_string(CSA_predom['BMI'].describe()), iqr_string(OSA_predom['BMI'].describe()),
-                     iqr_string(OSA_pure['BMI'].describe())))
+    # demographics.append((iqr_string(df['BMI'].describe()), iqr_string(CSA_pure['BMI'].describe()),
+    #                 iqr_string(CSA_predom['BMI'].describe()), iqr_string(OSA_predom['BMI'].describe()),
+    #                 iqr_string(OSA_pure['BMI'].describe())))
+
+    demographics.append((std_string(df['BMI'].describe()), std_string(CSA_pure['BMI'].describe()),
+                     std_string(CSA_predom['BMI'].describe()), std_string(OSA_predom['BMI'].describe()),
+                     std_string(OSA_pure['BMI'].describe())))
+
 
     demo_row_labels.append("")
     demographics.append(("", "", "", "", "")) # empty row
 
     # Comorbidities
-    demo_row_labels.append('COMORBIDITIES')
+    demo_row_labels.append('COMORBIDITIES: [ ] manually add CAD to this in place of None')
     demographics.append(("", "", "", "", "")) # empty row
 
     for status in histo_comorbs_includes(df).keys():
@@ -220,9 +225,13 @@ def new_make_tables(df):
 
     # AHI
     demo_row_labels.append('AHI')
-    demographics.append((iqr_string(df['AHI'].describe()), iqr_string(CSA_pure['AHI'].describe()),
-                     iqr_string(CSA_predom['AHI'].describe()), iqr_string(OSA_predom['AHI'].describe()),
-                     iqr_string(OSA_pure['AHI'].describe())))
+    # demographics.append((iqr_string(df['AHI'].describe()), iqr_string(CSA_pure['AHI'].describe()),
+    #                  iqr_string(CSA_predom['AHI'].describe()), iqr_string(OSA_predom['AHI'].describe()),
+    #                  iqr_string(OSA_pure['AHI'].describe())))
+
+    demographics.append((std_string(df['AHI'].describe()), std_string(CSA_pure['AHI'].describe()),
+                     std_string(CSA_predom['AHI'].describe()), std_string(OSA_predom['AHI'].describe()),
+                     std_string(OSA_pure['AHI'].describe())))
 
     for severity in df['AHI_label'].value_counts().keys():
         demo_row_labels.append(severity)
@@ -741,11 +750,11 @@ def makeTables(df):
     num_osa_predom = len(OSA_predom.index)
     num_osa_pure = len(OSA_pure.index)
 
-    column_labels = ['All, n=%s' % num_total,
-                     'Pure CSA (90+%% Central Events), n=%s' % num_csa_pure,
-                     'Predominantly CSA (50-90%% Central Events), n=%s' % num_csa_predom,
-                     'Combined OSA/CSA (10-50%% Central Events), n=%s' % num_osa_predom,
-                     'Mainly OSA (<10%% Central Events), n=%s' % num_osa_pure]
+    column_labels = ['All, N=%s' % num_total,
+                     'Pure CSA (90+%% CSA), N=%s' % num_csa_pure,
+                     'Predominantly CSA (50-90%% CSA), N=%s' % num_csa_predom,
+                     'Combined OSA/CSA (10-49.9%% CSA), N=%s' % num_osa_predom,
+                     'Mainly OSA (<10%% CSA), N=%s' % num_osa_pure]
 
     workbook = Workbook()
 
@@ -954,7 +963,10 @@ def count_string_indiv(num, num_patients):
     """returns an string with the number and percentage of an individuals value"""
     output = "%.0f/" % num
     output += str(num_patients)
-    percentage = (num / num_patients) * 100
+    if num_patients is not 0:
+        percentage = (num / num_patients) * 100
+    else:
+        percentage = 0.0
     output += ' (%.1f%%)' % percentage
     return output
 
@@ -1077,7 +1089,7 @@ def sankeyEtioTx(df):
 
     fig.set_size_inches(18, 11)
     fig.suptitle(
-        "Flow (Sankey) Diagram of Etiology of Central Apneas and Final Treatment, Separated by %Central Events")
+        "Flow (Sankey) Diagram of Etiology of Central Apneas and Final Treatment, Separated by %CSA")
     sankeySubPlot(f_ax1, df, "All Patients Diagnosed with CSA")
 
     # f_ax3.set_title("Mainly OSA", fontsize=10)
@@ -1085,7 +1097,7 @@ def sankeyEtioTx(df):
                   "<10% CSAs")
     # f_ax5.set_title("Combined OSA/CSA", fontsize=10)
     sankeySubPlot(f_ax5, df.loc[df['BaseDx'] == "Combined OSA/CSA"],
-                  "10-50% CSAs")
+                  "10-49.9% CSAs")
     # f_ax4.set_title("Predominantly CSA", fontsize=10)
     sankeySubPlot(f_ax4, df.loc[df['BaseDx'] == "Predominantly CSA"],
                   "50-90% CSAs")
@@ -1252,7 +1264,7 @@ def outcome_by_csa_percent(df):
 
     f, axes = plt.subplots(4, 1, figsize=(6, 9), sharex=True)
     sns.despine(top=True, bottom=True)
-    f.suptitle("Initial Outcome, Grouped by %Central Events")
+    f.suptitle("Initial Outcome, Grouped by %CSA")
 
     CSA_pure = df.loc[df['BaseDx'] == "Pure CSA"]
     CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA"]
@@ -1260,16 +1272,16 @@ def outcome_by_csa_percent(df):
     OSA_pure = df.loc[df['BaseDx'] == "Mainly OSA"]
 
     sns.countplot(y='Outcome', data=OSA_pure, ax=axes[0])
-    axes[0].set(xlabel="", ylabel="<10% Central Events")
+    axes[0].set(xlabel="", ylabel="<10% CSA")
 
     sns.countplot(y='Outcome', data=OSA_predom, ax=axes[1])
-    axes[1].set(xlabel="", ylabel="10-50% Central Events")
+    axes[1].set(xlabel="", ylabel="10-49.9% CSA")
 
     sns.countplot(y='Outcome', data=CSA_predom, ax=axes[2])
-    axes[2].set(xlabel="", ylabel="50-90% Central Events")
+    axes[2].set(xlabel="", ylabel="50-90% CSA")
 
     sns.countplot(y='Outcome', data=CSA_pure, ax=axes[3])
-    axes[3].set(xlabel="Patients with each outcome after initial treatment", ylabel=">90% Central Events")
+    axes[3].set(xlabel="Patients with each outcome after initial treatment", ylabel=">90% CSA")
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
     f.savefig('Outcome by CSA percent.png', dpi=100)
@@ -1376,6 +1388,115 @@ def outcome_by_etio(df):
     f.tight_layout(rect=[0, 0, 1, 0.95])
     f.savefig('Outcome by Etio.png', dpi=100)
     # plt.show()
+
+
+def outcome_by_etio_no_pie(df):
+    """ version of the outcome graph with just bars, no pie
+    """
+
+    # TODO: possibly combine with etio by percentage
+
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 6)) #still 6 if osa csa
+    f, axes = plt.subplots(5, 1, figsize=(6, 9)) # 6, 2 if OSA CSA
+    sns.despine(top=True, bottom=True)
+    # f.suptitle("Outcome, Grouped by Contributing Etiology")
+
+    # contains used instead of equal to include patients with multiple etio (e.g. cardiac+medication count to both)
+    neurologic_df = df.loc[df['PostDx'].str.contains("Neurologic")].sort_values(by='Outcome')
+    cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")].sort_values(by='Outcome')
+    medication_df = df.loc[df['PostDx'].str.contains("Medication")].sort_values(by='Outcome')
+    tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")].sort_values(by='Outcome')
+    # osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
+    primary_df = df.loc[df['PostDx'].str.contains("Primary")].sort_values(by='Outcome')
+
+    # collapse possible outcomes
+    neurologic_df['col_outcome'] = neurologic_df.apply(collapse_initial_outcome, axis=1)
+    cardiac_df['col_outcome'] = cardiac_df.apply(collapse_initial_outcome, axis=1)
+    medication_df['col_outcome'] = medication_df.apply(collapse_initial_outcome, axis=1)
+    tecsa_df['col_outcome'] = tecsa_df.apply(collapse_initial_outcome, axis=1)
+    # osacsa_df['col_outcome'] = osacsa_df.apply(collapse_initial_outcome, axis=1)
+    primary_df['col_outcome'] = primary_df.apply(collapse_initial_outcome, axis=1)
+
+    # Create count plot for each Etio on the left, then a Pie Chart with proportion on the right
+
+    hatches = ['///', '|||', 'xxx', '\\\\\\', '', '+++']
+    face_color = ['dimgray', 'silver', 'whitesmoke', 'grey', 'gainsboro', 'darkgrey']
+
+    # Neurologic
+    bar = sns.countplot(y='col_outcome', data=neurologic_df, ax=axes[0])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[0].set(xlabel="", ylabel="Neurologic")
+
+
+    # Cardiac
+    bar = sns.countplot(y='col_outcome', data=cardiac_df, ax=axes[1])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[1].set(xlabel="", ylabel="Cardiac")
+
+    # Medication
+    bar = sns.countplot(y='col_outcome', data=medication_df, ax=axes[2])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[2].set(xlabel="", ylabel="Medication")
+
+    # OSA-CSA
+    # bar = sns.countplot(y='col_outcome', data=osacsa_df, ax=axes[3,0])
+    # for i, this_bar in enumerate(bar.patches):
+    #     # Set a different hatch for each bar
+    #     this_bar.set_hatch(hatches[i])
+    # axes[3].set(xlabel="", ylabel="OSA-CSA")
+    # If adding OSA-CSA back, would need to increase by 1 all of the axes indices
+
+    # TE-CSA
+    bar = sns.countplot(y='col_outcome', data=tecsa_df, ax=axes[3])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[3].set(xlabel="", ylabel="TE-CSA")
+
+    #Primary
+    bar = sns.countplot(y='col_outcome', data=primary_df, ax=axes[4])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor('white')
+        this_bar.set_facecolor(face_color[i])
+    axes[4].set(xlabel="Outcome of initial treatment by etiology", ylabel="Primary CSA")
+
+    # Combined X axis for L side
+    axes[4].get_shared_x_axes().join(axes[4], axes[3], axes[2], axes[1], axes[0]) # axes[5] would need to be added back
+    axes[0].set_xticklabels("")
+    axes[1].set_xticklabels("")
+    axes[2].set_xticklabels("")
+    axes[3].set_xticklabels("")
+    # axes[4].set_xticklabels("")
+    # Leave bottom labels in
+
+    # Resize all
+    axes[0].autoscale()
+    axes[1].autoscale()
+    axes[2].autoscale()
+    axes[3].autoscale()
+    axes[4].autoscale()
+    # axes[5].autoscale()
+
+    f.tight_layout(rect=[0, 0, 1, 1])
+    f.savefig('Outcome by Etio no pie.png', dpi=100)
+    # plt.show()
+
 
 def init_tx_by_etio(df):
     sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
@@ -1499,7 +1620,7 @@ def init_tx_by_csa(df):
 
     f, axes = plt.subplots(4, 1, figsize=(6, 9), sharex=True)
     sns.despine(top=True, bottom=True)
-    f.suptitle("Initial Treatment Modality, Grouped by %Central Events")
+    f.suptitle("Initial Treatment Modality, Grouped by %CSA")
 
     CSA_pure = df.loc[df['BaseDx'] == "Pure CSA"]
     CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA"]
@@ -1507,16 +1628,16 @@ def init_tx_by_csa(df):
     OSA_pure = df.loc[df['BaseDx'] == "Mainly OSA"]
 
     sns.countplot(y='InitTx', data=OSA_pure, ax=axes[0])
-    axes[0].set(xlabel="", ylabel="<10% Central Events")
+    axes[0].set(xlabel="", ylabel="<10% CSA")
 
     sns.countplot(y='InitTx', data=OSA_predom, ax=axes[1])
-    axes[1].set(xlabel="", ylabel="10-50% Central Events")
+    axes[1].set(xlabel="", ylabel="10-49.9% CSA")
 
     sns.countplot(y='InitTx', data=CSA_predom, ax=axes[2])
-    axes[2].set(xlabel="", ylabel="50-90% Central Events")
+    axes[2].set(xlabel="", ylabel="50-90% CSA")
 
     sns.countplot(y='InitTx', data=CSA_pure, ax=axes[3])
-    axes[3].set(xlabel="Patients who initially received each treatment modality", ylabel=">90% Central Events")
+    axes[3].set(xlabel="Patients who initially received each treatment modality", ylabel=">90% CSA")
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
     f.savefig('Initial Treatment by Perc CSA.png', dpi=100)
@@ -1529,7 +1650,7 @@ def final_tx_by_csa(df):
 
     f, axes = plt.subplots(4, 1, figsize=(6, 9), sharex=True)
     sns.despine(top=True, bottom=True)
-    f.suptitle("Final Treatment Modality, Grouped by %Central Events")
+    f.suptitle("Final Treatment Modality, Grouped by %CSA")
 
     CSA_pure = df.loc[df['BaseDx'] == "Pure CSA"]
     CSA_predom = df.loc[df['BaseDx'] == "Predominantly CSA"]
@@ -1537,16 +1658,16 @@ def final_tx_by_csa(df):
     OSA_pure = df.loc[df['BaseDx'] == "Mainly OSA"]
 
     sns.countplot(y='FinalTx', data=OSA_pure, ax=axes[0])
-    axes[0].set(xlabel="", ylabel="<10% Central Events")
+    axes[0].set(xlabel="", ylabel="<10% CSA")
 
     sns.countplot(y='FinalTx', data=OSA_predom, ax=axes[1])
-    axes[1].set(xlabel="", ylabel="10-50% Central Events")
+    axes[1].set(xlabel="", ylabel="10-49.9% CSA")
 
     sns.countplot(y='FinalTx', data=CSA_predom, ax=axes[2])
-    axes[2].set(xlabel="", ylabel="50-90% Central Events")
+    axes[2].set(xlabel="", ylabel="50-90% CSA")
 
     sns.countplot(y='FinalTx', data=CSA_pure, ax=axes[3])
-    axes[3].set(xlabel="Patients who initially received each treatment modality", ylabel=">90% Central Events")
+    axes[3].set(xlabel="Patients who initially received each treatment modality", ylabel=">90% CSA")
 
     f.tight_layout(rect=[0, 0, 1, 0.95])
     f.savefig('Final Treatment by Perc CSA.png', dpi=100)
@@ -1560,7 +1681,7 @@ def test_by_csa(df):
     sns.set(style="white", palette=sns.color_palette("cubehelix", 3))
     f, axes = plt.subplots(4, 1, figsize=(4, 9))#, sharex=True)
     sns.despine(top=True, bottom=True)
-    f.suptitle("Diagnostic Test\nGrouped by %Central Events")
+    f.suptitle("Diagnostic Test\nGrouped by %CSA")
 
     OSA_pure_df = df.loc[df['BaseDx'] == "Mainly OSA"]
     OSA_predom_df = df.loc[df['BaseDx'] == "Combined OSA/CSA"]
@@ -1573,21 +1694,21 @@ def test_by_csa(df):
     CSA_pure_hist = CSA_pure_df['StudyType'].value_counts()
 
     # Pure OSA
-    axes[0].set(xlabel="", ylabel="<10% Central Events")
+    axes[0].set(xlabel="", ylabel="<10% CSA")
     osa_pure_wedges, _, _ = axes[0].pie(OSA_pure_hist, autopct="%1.1f%%", startangle=0, pctdistance=1.25,
                                              textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
                                              wedgeprops={'edgecolor': 'black'})
     axes[0].legend(osa_pure_wedges, OSA_pure_hist.keys(), loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 
     # Predom OSA
-    axes[1].set(xlabel="", ylabel="10-50% Central Events")
+    axes[1].set(xlabel="", ylabel="10-49.9% CSA")
     osa_predom_wedges, _, _ = axes[1].pie(OSA_predom_hist, autopct="%1.1f%%", startangle=0, pctdistance=1.25,
                                              textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
                                              wedgeprops={'edgecolor': 'black'})
     axes[1].legend(osa_predom_wedges, OSA_predom_hist.keys(), loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 
     # Predom CSA
-    axes[2].set(xlabel="", ylabel="50-90% Central Events")
+    axes[2].set(xlabel="", ylabel="50-90% CSA")
 
     csa_predom_wedges, _, _ = axes[2].pie(CSA_predom_hist, autopct="%1.1f%%", startangle=0, pctdistance=1.25,
                                              textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
@@ -1595,7 +1716,7 @@ def test_by_csa(df):
     axes[2].legend(csa_predom_wedges, CSA_predom_hist.keys(), loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 
     # Pure CSA
-    axes[3].set(xlabel="Patients With Each Etiology Contributing to Central Events", ylabel=">90% Central Events")
+    axes[3].set(xlabel="Patients With Each Etiology Contributing to CSA", ylabel=">90% CSA")
 
     csa_pure_wedges, _, _ = axes[3].pie(CSA_pure_hist, autopct="%1.1f%%", startangle=0, pctdistance=1.25,
                                              textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
@@ -1614,7 +1735,7 @@ def etio_by_csa(df):
     sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
     f, axes = plt.subplots(4, 2, figsize=(9, 9))#, sharex=True)
     sns.despine(top=True, bottom=True)
-    f.suptitle("Etiology of Central Events, Grouped by %Central Events")
+    f.suptitle("Etiology of Central Events, Grouped by %CSA")
 
     OSA_pure_hist = histo_dx_includes(df.loc[df['BaseDx'] == "Mainly OSA"], return_df=True).sort_values("Dx")
     OSA_predom_hist = histo_dx_includes(df.loc[df['BaseDx'] == "Combined OSA/CSA"], return_df=True).sort_values("Dx")
@@ -1625,7 +1746,7 @@ def etio_by_csa(df):
 
     # Pure OSA
     sns.barplot(x="Count", y="Dx", data=OSA_pure_hist, ax=axes[0,0])
-    axes[0, 0].set(xlabel="", ylabel="<10% Central Events")
+    axes[0, 0].set(xlabel="", ylabel="<10% CSA")
     osa_pure_wedges, _, _ = axes[0, 1].pie(OSA_pure_hist['Count'], autopct="%1.1f%%", startangle=0, pctdistance=1.25,
                                              textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
                                              wedgeprops={'edgecolor': 'black'})
@@ -1633,7 +1754,7 @@ def etio_by_csa(df):
 
     # Predom OSA
     sns.barplot(x="Count", y="Dx", data=OSA_predom_hist, ax=axes[1,0])
-    axes[1, 0].set(xlabel="", ylabel="10-50% Central Events")
+    axes[1, 0].set(xlabel="", ylabel="10-49.9% CSA")
     osa_predom_wedges, _, _ = axes[1, 1].pie(OSA_predom_hist['Count'], autopct="%1.1f%%", startangle=0, pctdistance=1.25,
                                              textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
                                              wedgeprops={'edgecolor': 'black'})
@@ -1641,7 +1762,7 @@ def etio_by_csa(df):
 
     # Predom CSA
     sns.barplot(x="Count", y="Dx", data=CSA_predom_hist, ax=axes[2, 0])
-    axes[2, 0].set(xlabel="", ylabel="50-90% Central Events")
+    axes[2, 0].set(xlabel="", ylabel="50-90% CSA")
 
     csa_predom_wedges, _, _ = axes[2, 1].pie(CSA_predom_hist['Count'], autopct="%1.1f%%", startangle=0, pctdistance=1.25,
                                              textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
@@ -1650,7 +1771,7 @@ def etio_by_csa(df):
 
     # Pure CSA
     sns.barplot(x="Count", y="Dx", data=CSA_pure_hist, ax=axes[3,0])
-    axes[3, 0].set(xlabel="Patients With Each Etiology Contributing to Central Events", ylabel=">90% Central Events")
+    axes[3, 0].set(xlabel="Patients With Each Etiology Contributing to Central Events", ylabel=">90% CSA")
 
     csa_pure_wedges, _, _ = axes[3, 1].pie(CSA_pure_hist['Count'], autopct="%1.1f%%", startangle=0, pctdistance=1.25,
                                              textprops={'size': 'x-small'}, colors=sns.color_palette("cubehelix", 6),
@@ -1674,6 +1795,86 @@ def etio_by_csa(df):
     f.tight_layout(rect=[0, 0, 1, 0.95]) # .95 to leave space for title
     f.savefig('Etio by percentage CSA.png', dpi=100)
     # plt.show()
+
+
+def etio_by_csa_no_pie(df):
+    """creates a horizontal count chart with counts of each etiology and a pie chart with the proportion,
+     grouped by percentage of CSA"""
+
+    # TODO: see if there's a way to combine this information with Outcome by Etio
+
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
+    f, axes = plt.subplots(4, 1, figsize=(6, 9))#, sharex=True)
+    sns.despine(top=True, bottom=True)
+    #f.suptitle("Etiology of Central Events, Grouped by %Central Events")
+
+    OSA_pure_hist = histo_dx_includes(df.loc[df['BaseDx'] == "Mainly OSA"], return_df=True).sort_values("Dx")
+    OSA_predom_hist = histo_dx_includes(df.loc[df['BaseDx'] == "Combined OSA/CSA"], return_df=True).sort_values("Dx")
+    CSA_predom_hist = histo_dx_includes(df.loc[df['BaseDx'] == "Predominantly CSA"], return_df=True).sort_values("Dx")
+    CSA_pure_hist = histo_dx_includes(df.loc[df['BaseDx'] == "Pure CSA"], return_df=True).sort_values("Dx")
+
+    # Create count plot for each #CSA on the left, then a Pie Chart with proportion on the right
+
+    hatches = ['///', '|||', 'xxx', '\\\\\\', '', '+++']
+    face_color = [ 'dimgray', 'silver', 'whitesmoke', 'grey', 'gainsboro', 'darkgrey']
+
+    # Pure OSA
+    bar = sns.barplot(x="Count", y="Dx", data=OSA_pure_hist, ax=axes[3])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    #axes[3].set(xlabel="Patients With Each Etiology Contributing to Central Events", ylabel="<10% Central Events", yticklabels = [])
+    axes[3].set(xlabel="Patients With Each Etiology Contributing to Central Events", ylabel="")
+
+    # Predom OSA
+    bar = sns.barplot(x="Count", y="Dx", data=OSA_predom_hist, ax=axes[2])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[2].set(xlabel="", ylabel="")
+    # axes[2].set(xlabel="", ylabel="10-50% Central Events", yticklabels=[])
+
+    # Predom CSA
+    bar = sns.barplot(x="Count", y="Dx", data=CSA_predom_hist, ax=axes[1])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[1].set(xlabel="", ylabel="")
+    # axes[1].set(xlabel="", ylabel="50-90% Central Events", yticklabels=[])
+
+    # Pure CSA
+    bar = sns.barplot(x="Count", y="Dx", data=CSA_pure_hist, ax=axes[0])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[0].set(xlabel="", ylabel="")
+    # axes[0].set(xlabel="", ylabel=">90% Central Events", yticklabels=[])
+
+    # Combined X axis for L side
+    axes[3].get_shared_x_axes().join(axes[3], axes[2], axes[1], axes[0])
+    axes[0].set_xticklabels("")
+    axes[1].set_xticklabels("")
+    axes[2].set_xticklabels("")
+    # Leave bottom aka [3,0] labels in
+
+    # Resize all
+    axes[0].autoscale()
+    axes[1].autoscale()
+    axes[2].autoscale()
+    axes[3].autoscale()
+
+    f.tight_layout(rect=[0, 0, 1, 1]) # .95 to leave space for title
+    f.savefig('Etio by percentage CSA no pie.png', dpi=100)
+    # plt.show()
+
 
 def etio_by_csa_dep(df):
     """creates a lollipop graph with counts of each etiology, grouped by percentage of CSA"""
@@ -1830,18 +2031,18 @@ def coded_output(database_df, output_loc='coded_output.xlsx'):
     labels_ser["has_ckd"] = "0 = no CKD, 1 = has CKD"
 
     # -   Heart?
-    output_df["has_cv"] = database_df["Heart"].apply(is_dz_free)
+    #output_df["has_cv"] = database_df["Heart"].apply(is_dz_free)
+    #labels_ser["has_cv"] = "0 = no CV disease, 1 = has some CV disease"
+
+    output_df["has_cv"] = database_df['PostDx'].apply(dz_is_in, args=("Cardiac",))
     labels_ser["has_cv"] = "0 = no CV disease, 1 = has some CV disease"
 
-    output_df["has_cv2"] = database_df['PostDx'].apply(dz_is_in, args=("Cardiac",))
-    labels_ser["has_cv2"] = "0 = no CV disease, 1 = has some CV disease"
-
     # -   CNS
-    output_df["has_cns"] = database_df["CNS"].apply(is_dz_free)
-    labels_ser["has_cns"] = "0 = no CNS disease, 1 = has some CNS disease"
+    #output_df["has_cns"] = database_df["CNS"].apply(is_dz_free)
+    #labels_ser["has_cns"] = "0 = no CNS disease, 1 = has some CNS disease"
 
-    output_df["has_cns2"] = database_df['PostDx'].apply(dz_is_in, args=("Neurologic",))
-    labels_ser["has_cv2"] = "0 = no CNS disease, 1 = has some CNS disease"
+    output_df["has_cns"] = database_df['PostDx'].apply(dz_is_in, args=("Neurologic",))
+    labels_ser["has_cns"] = "0 = no CNS disease, 1 = has some CNS disease"
 
     # -   Opiate
     output_df["has_opiate"] = database_df['PostDx'].apply(dz_is_in, args=("Medication",))
@@ -1894,14 +2095,28 @@ def coded_output(database_df, output_loc='coded_output.xlsx'):
     labels_ser["has_dem_and_cva_or_degen"] = "1 = has (dem and cva) or (neurodegen and cva), 0 = doesn't have those combos"
 
     # Final Treatment
-    LE.fit(database_df['FinalTx'])
-    labels_ser['FinalTx'] = create_key_string(list(LE.classes_))
-    output_df['FinalTx'] = LE.transform(database_df['FinalTx'])
+
+    # #Similarly do the same for ASV (group 0) vs. CPAP and BPAP together.
+    database_df['FinalTx_coll'] = database_df.apply(collapse_final_treatment, axis=1)
+
+    LE.fit(database_df['FinalTx_coll'])
+    class_for_swap = list(LE.classes_)  # swapped the order of the labels to be more intuitive
+    class_for_swap[0], class_for_swap[1] = class_for_swap[1], class_for_swap[0]
+    labels_ser['FinalTx_coll'] = create_key_string(class_for_swap)  #  switch labels for PAP to be 0 (not 1) and ASV to be 1 (not 0)
+
+    output_df['FinalTx_coll'] = LE.transform(database_df['FinalTx_coll'])
+    output_df['FinalTx_coll'] = output_df['FinalTx_coll'].apply(swap_value)  #so that the labels are correct order
+
+    # Collapse: percOSA/CSA as 0 and 1 (0 being >50% OSA –combine 0 and 1 groups and 1 being >50% CSA –combine the 3 and 4).
+
+    database_df['PercOSA'] = database_df.apply(collapse_base_dx, axis=1)
 
     # Category of OSA
-    LE.fit(database_df['BaseDx'])
-    labels_ser['PercOSA'] = create_key_string(list(LE.classes_))  #  Perc(entage) OSA: more descriptive term for BaseDx
-    output_df['PercOSA'] = LE.transform(database_df['BaseDx'])
+    LE.fit(database_df['PercOSA'])
+    class_for_swap = list(LE.classes_)  # swapped the order of the labels to be more intuitive
+    labels_ser['PercOSA'] = create_key_string(class_for_swap[1:] + [class_for_swap[0]])  #  Perc(entage) OSA: more descriptive term for BaseDx
+    output_df['PercOSA'] = LE.transform(database_df['PercOSA'])
+    output_df['PercOSA'] = output_df['PercOSA'].apply(swap_value)  #so that the labels are correct order
 
     # Dx Study
     LE.fit(database_df['StudyType'])
@@ -1911,6 +2126,16 @@ def coded_output(database_df, output_loc='coded_output.xlsx'):
     output_df.to_excel(output_loc)
     labels_ser.to_excel("keys_"+output_loc)
     return
+
+
+def swap_value(value):
+    '''make 0 a 1 and a 1 a 0 for when SKLearn gives the backward encoding
+    if value is anything other than 1 or 0, no swap is performed'''
+    if value == 1:
+        value = 0
+    elif value == 0:
+        value = 1
+    return value
 
 
 def dz_is_in(dz_string, substring):
@@ -1932,6 +2157,7 @@ def dzs_are_in(dz_string, substring1, substring2):
     else:
         return 1
 
+
 def is_dz_free(dz_string, substring="none"):
     """ returns 0 if the return substring is in dz_string
     default substring is none, meaning that if CV = none, patient is disease free
@@ -1940,6 +2166,78 @@ def is_dz_free(dz_string, substring="none"):
         return 1
     else:
         return 0
+
+
+def replace_etiology_labels(df):
+    """take a df of histogram (e.g. count_hist) and replace the labels such that:
+     cardiac -> cardiac conditions
+     neurologic -> neurologic conditions
+     medication -> opiate use
+     Primary -> primary CSA"""
+    return df.replace({'Cardiac':'Cardiac Conditions', 'Neurologic':'Neurologic Conditions', 'Medication':'Opiate Use', 'Primary':'Primary CSA'})
+
+
+def collapse_initial_outcome(row):
+    # take a row and returns either "Failed CPAP", "Resolved with CPAP", "No Adequate CPAP Trial"
+    if row['Outcome'] == "n/a":
+        return "No adequate CPAP trial"
+    elif row["Outcome"] == "never started on cpap":
+        return "No adequate CPAP trial"
+    elif row["Outcome"] == "non-compliant":
+        return "No adequate CPAP trial"
+    elif row["Outcome"] == "resolved w/bipap":
+        return "No adequate CPAP trial"
+    elif row["Outcome"] == "resolved w/ cpap":
+        return "Resolved with CPAP"
+    elif row["Outcome"] == "failed cpap":
+        return "Did not resolve with CPAP"
+    else:
+        return row["Outcome"]
+
+
+def collapse_final_treatment(row):
+    #takes a row and returns either
+    # CPAP, BPAP, ASV, or other
+    #print(row['FinalTx'])
+    if row['FinalTx'] == 'niv-o2':
+        return "ASV"
+    elif row['FinalTx'] == 'niv':
+        return "ASV"
+    elif row['FinalTx'] == 'asv':
+        return "ASV"
+    elif row['FinalTx'] == 'bipap-o2':
+        return "BPAP"
+    elif row['FinalTx'] == 'bipap':
+        return "BPAP"
+    elif row['FinalTx'] == 'cpap':
+        return "CPAP"
+    elif row['FinalTx'] == 'O2':
+        return "Other"
+    elif row['FinalTx'] == 'mad':
+        return "Other"
+    elif row['FinalTx'] == 'none':
+        return "Other"
+    else:
+        print("ERROR, collapse_final_treatment")
+        return row['FinalTx']
+
+
+def collapse_base_dx(row):
+    #takes a row and returns either
+    # mostly_CSA or mostly_OSA depending on if BaseDx has more or less than 50% obstructive/central apneas
+    #print(row['BaseDx'])
+    if row['BaseDx'] == 'Mainly OSA':
+        return "mostly_OSA"
+    elif row['BaseDx'] == 'Combined OSA/CSA':
+        return "mostly_OSA"
+    elif row['BaseDx'] == 'Predominantly CSA':
+        return "mostly_CSA"
+    elif row['BaseDx'] == 'Pure CSA':
+        return "mostly_CSA"
+    else:
+        print("ERROR, collapse_base_dx")
+        return row['BaseDx']
+
 
 def create_key_string(classes):
     '''takes the list of classes from the LabelEncoder and puts them in to a string to function as a key,
@@ -1951,16 +2249,313 @@ def create_key_string(classes):
     return output_str
 
 
+def display_dist(df, label):
+    """takes a df and a column label and graphs the distribution (continuous) for display"""
+    # print(sns.__version__)
+
+    #TODO: make a categorical version of this?
+
+    sns.set(style="white", palette="pastel")
+    fig, axes = plt.subplots(2, 1, figsize=(6, 6))  # 6, 2 if OSA CSA
+
+    axes[1].get_shared_x_axes().join(axes[1], axes[0])
+    axes[1].set_aspect(aspect=25)
+
+    sns.distplot(df[label], ax=axes[0], kde=False, norm_hist=False, color='teal')
+    sns.boxplot(data=df, x=label, ax=axes[1], color='skyblue')
+
+    sns.despine(ax=axes[0], top=True, bottom=True, right=True)
+    sns.despine(ax=axes[1], top=True, left=True, right=True)
+
+    axes[0].set_xlabel("")
+    axes[0].set_ylabel("Count per bin", fontsize='large')
+
+    row_label = "{lab}\nMean: {mean:.1f}, Std Dev: {std:.1f}\nMedian: {med:.1f}, IQR: [{lower:.1f}, {upper:.1f}]\nCount: {count:.0f}"\
+        .format(lab=label, mean=df[label].describe()['mean'], std=df[label].describe()['std'],
+                med=df[label].describe()['50%'], lower=df[label].describe()['25%'], upper=df[label].describe()['75%'],
+                count=df[label].describe()['count'])
+
+    axes[1].set_xlabel(row_label, fontsize='large')
+    axes[1].set(xlim=(0, None))
+
+    fig.suptitle("Distribution of " + str(label), fontsize='xx-large')
+    fig.tight_layout(rect=[0, 0, 1, .9])  # .95 to leave space for title
+    fig.savefig('Display Dist ' + str(label) + '.png', dpi=100)
+
+
+def figure_4(df):
+    """
+    Bar graphs of the final treatment by percentage of CSA
+    """
+
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
+    f, axes = plt.subplots(4, 1, figsize=(6, 9))  # , sharex=True)
+    sns.despine(top=True, bottom=True)
+
+    # Add collapsed final treatments
+    df['FinalTx_coll'] = df.apply(collapse_final_treatment, axis=1)
+
+    neurologic_df = df.loc[df['PostDx'].str.contains("Neurologic")].sort_values(by='Outcome')
+
+    OSA_pure_hist = df.loc[df['BaseDx'] == "Mainly OSA"].sort_values("FinalTx_coll")
+    OSA_predom_hist = df.loc[df['BaseDx'] == "Combined OSA/CSA"].sort_values("FinalTx_coll")
+    CSA_predom_hist = df.loc[df['BaseDx'] == "Predominantly CSA"].sort_values("FinalTx_coll")
+    CSA_pure_hist = df.loc[df['BaseDx'] == "Pure CSA"].sort_values("FinalTx_coll")
+
+    # Create count plot for each #CSA on the left, then a Pie Chart with proportion on the right
+
+    hatches = ['', '', '\\\\\\', '...']
+    face_color = ['dimgrey','white', 'white', 'white']
+
+    # Pure OSA
+    bar = sns.countplot(y="FinalTx_coll", data=OSA_pure_hist, ax=axes[3])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[3].set(xlabel="", ylabel="<10% CSA")
+
+    # Predom OSA
+    bar = sns.countplot(y="FinalTx_coll", data=OSA_predom_hist, ax=axes[2])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[2].set(xlabel="", ylabel="10-49.9% CSA")
+
+    # Predom CSA
+    bar = sns.countplot(y="FinalTx_coll", data=CSA_predom_hist, ax=axes[1])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[1].set(xlabel="", ylabel="50-90% CSA")
+
+    # Pure CSA
+    bar = sns.countplot(y="FinalTx_coll", data=CSA_pure_hist, ax=axes[0])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[0].set(xlabel="", ylabel=">90% CSA")
+
+    # Combined X axis for L side
+    axes[3].get_shared_x_axes().join(axes[3], axes[2], axes[1], axes[0])
+    axes[0].set_xticklabels("")
+    axes[1].set_xticklabels("")
+    axes[2].set_xticklabels("")
+    # Leave bottom aka [3,0] labels in
+
+    # Resize all
+    axes[0].autoscale()
+    axes[1].autoscale()
+    axes[2].autoscale()
+    axes[3].autoscale()
+
+    f.tight_layout(rect=[0, 0, 1, 1])  # .95 to leave space for title
+    f.savefig('Figure 4 - final tx by perc csa', dpi=100)
+    # plt.show()
+
+
+def figure_3(df):
+    """
+    Bar graphs of the outcome of CPAP treatment (if performed) by the etiology of CSA
+    """
+
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 6)) #still 6 if osa csa
+    f, axes = plt.subplots(5, 1, figsize=(6, 9)) # 6, 2 if OSA CSA
+    sns.despine(top=True, bottom=True)
+    # f.suptitle("Outcome, Grouped by Contributing Etiology")
+
+    # contains used instead of equal to include patients with multiple etio (e.g. cardiac+medication count to both)
+    neurologic_df = df.loc[df['PostDx'].str.contains("Neurologic")].sort_values(by='Outcome')
+    cardiac_df = df.loc[df['PostDx'].str.contains("Cardiac")].sort_values(by='Outcome')
+    medication_df = df.loc[df['PostDx'].str.contains("Medication")].sort_values(by='Outcome')
+    tecsa_df = df.loc[df['PostDx'].str.contains("TECSA")].sort_values(by='Outcome')
+    # osacsa_df = df.loc[df['PostDx'].str.contains("OSA-CSA")].sort_values(by='Outcome')
+    primary_df = df.loc[df['PostDx'].str.contains("Primary")].sort_values(by='Outcome')
+
+    # collapse possible outcomes
+    neurologic_df['col_outcome'] = neurologic_df.apply(collapse_initial_outcome, axis=1)
+    cardiac_df['col_outcome'] = cardiac_df.apply(collapse_initial_outcome, axis=1)
+    medication_df['col_outcome'] = medication_df.apply(collapse_initial_outcome, axis=1)
+    tecsa_df['col_outcome'] = tecsa_df.apply(collapse_initial_outcome, axis=1)
+    # osacsa_df['col_outcome'] = osacsa_df.apply(collapse_initial_outcome, axis=1)
+    primary_df['col_outcome'] = primary_df.apply(collapse_initial_outcome, axis=1)
+
+    # Create count plot for each Etio on the left, then a Pie Chart with proportion on the right
+
+    hatches = ['', '||||', '']
+    face_color = ['white', 'white', 'dimgrey']
+
+    # Neurologic
+    bar = sns.countplot(y='col_outcome', data=neurologic_df, ax=axes[0])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[0].set(xlabel="", ylabel="Neurologic\nConditions")
+
+
+    # Cardiac
+    bar = sns.countplot(y='col_outcome', data=cardiac_df, ax=axes[1])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[1].set(xlabel="", ylabel="Cardiac\nConditions")
+
+    # Medication
+    bar = sns.countplot(y='col_outcome', data=medication_df, ax=axes[2])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[2].set(xlabel="", ylabel="Opiate Use")
+
+    # OSA-CSA
+    # bar = sns.countplot(y='col_outcome', data=osacsa_df, ax=axes[3,0])
+    # for i, this_bar in enumerate(bar.patches):
+    #     # Set a different hatch for each bar
+    #     this_bar.set_hatch(hatches[i])
+    # axes[3].set(xlabel="", ylabel="OSA-CSA")
+    # If adding OSA-CSA back, would need to increase by 1 all of the axes indices
+
+    # TE-CSA
+    bar = sns.countplot(y='col_outcome', data=tecsa_df, ax=axes[3])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[3].set(xlabel="", ylabel="TECSA")
+
+    #Primary
+    bar = sns.countplot(y='col_outcome', data=primary_df, ax=axes[4])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[4].set(xlabel="", ylabel="Primary CSA")
+
+    # Combined X axis for L side
+    axes[4].get_shared_x_axes().join(axes[4], axes[3], axes[2], axes[1], axes[0]) # axes[5] would need to be added back
+    axes[0].set_xticklabels("")
+    axes[1].set_xticklabels("")
+    axes[2].set_xticklabels("")
+    axes[3].set_xticklabels("")
+    # axes[4].set_xticklabels("")
+    # Leave bottom labels in
+
+    # Resize all
+    axes[0].autoscale()
+    axes[1].autoscale()
+    axes[2].autoscale()
+    axes[3].autoscale()
+    axes[4].autoscale()
+    # axes[5].autoscale()
+
+    f.tight_layout(rect=[0, 0, 1, 1])
+    f.savefig('Figure 3 - outcome of cpap by etio.png', dpi=100)
+    # plt.show()
+
+def figure_2(df):
+    """
+    bar graphs of etiology (e.g. cardiac, medication) subdivided by the percentage of CSA
+    """
+
+    sns.set(style="white", palette=sns.color_palette("cubehelix", 6))
+    f, axes = plt.subplots(4, 1, figsize=(6, 9))  # , sharex=True)
+    sns.despine(top=True, bottom=True)
+    # f.suptitle("Etiology of Central Events, Grouped by %Central Events")
+
+    OSA_pure_hist = replace_etiology_labels(histo_dx_includes(df.loc[df['BaseDx'] == "Mainly OSA"], return_df=True).sort_values("Dx"))
+    OSA_predom_hist = replace_etiology_labels(histo_dx_includes(df.loc[df['BaseDx'] == "Combined OSA/CSA"], return_df=True).sort_values("Dx"))
+    CSA_predom_hist = replace_etiology_labels(histo_dx_includes(df.loc[df['BaseDx'] == "Predominantly CSA"], return_df=True).sort_values("Dx"))
+    CSA_pure_hist = replace_etiology_labels(histo_dx_includes(df.loc[df['BaseDx'] == "Pure CSA"], return_df=True).sort_values("Dx"))
+
+    # Create count plot for each #CSA on the left, then a Pie Chart with proportion on the right
+
+    hatches = ['///', 'xxx', '---', '', '']
+    face_color = ['white', 'white', 'white', 'white', 'dimgrey']
+
+    # Pure OSA
+    bar = sns.barplot(x="Count", y="Dx", data=OSA_pure_hist, ax=axes[3])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[3].set(xlabel="", ylabel="<10% CSA")
+
+    # Predom OSA
+    bar = sns.barplot(x="Count", y="Dx", data=OSA_predom_hist, ax=axes[2])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[2].set(xlabel="", ylabel="10-49.9% CSA")
+
+    # Predom CSA
+    bar = sns.barplot(x="Count", y="Dx", data=CSA_predom_hist, ax=axes[1])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[1].set(xlabel="", ylabel="50-90% CSA")
+
+    # Pure CSA
+    bar = sns.barplot(x="Count", y="Dx", data=CSA_pure_hist, ax=axes[0])
+    for i, this_bar in enumerate(bar.patches):
+        # Set a different hatch for each bar
+        this_bar.set_edgecolor('black')
+        this_bar.set_facecolor(face_color[i])
+        this_bar.set_hatch(hatches[i])
+    axes[0].set(xlabel="", ylabel=">90% CSA")
+
+    # Combined X axis for L side
+    axes[3].get_shared_x_axes().join(axes[3], axes[2], axes[1], axes[0])
+    axes[0].set_xticklabels("")
+    axes[1].set_xticklabels("")
+    axes[2].set_xticklabels("")
+    # Leave bottom aka [3,0] labels in
+
+    # Resize all
+    axes[0].autoscale()
+    axes[1].autoscale()
+    axes[2].autoscale()
+    axes[3].autoscale()
+
+    f.tight_layout(rect=[0, 0, 1, 1])  # .95 to leave space for title
+    f.savefig('Figure 2 - etio by perc csa', dpi=100)
+    # plt.show()
+
+
 def main():
     # Location of Db file
     db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
+    # db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/Backups/CSA-Db-Working-Only OSA CSA no inpt.xlsm"
+    # uncomment row 377 of readexcel.py if using above (includes OSA-CSA)
     df = arrays_to_df(sheet_to_arrays(load_sheet(db_loc)))
 
     df.to_excel('output.xlsx')
-    #printSumByBaseDx(df)
-    #makeTables(df)
+
     coded_output(df)
     new_make_tables(df)
+
+    figure_2(df)
+    figure_3(df)
+    figure_4(df)
 
     # print("\n\n---Total of number of patients where each etiology was contributory---")
     # print("---(will some to more than total given mutliple dx's)---\n")
@@ -1969,20 +2564,24 @@ def main():
     # visualizations(df)
 
     # Other visualizations:
-    vis_hist_etio(df)
-    init_tx_by_csa(df)
-    final_tx_by_csa(df)
-    init_tx_by_etio(df)
-    outcome_by_etio(df)
-    etio_by_csa(df)
-    pieChartBaseDx(df)
-    sankeyEtioTx(df)
-    sankeyTypeFinalTx(df)
-    sankeyTypeOutcome(df)
-    outcome_by_csa_percent(df)
-    sankeyTypeFinalTx(df)
-    test_by_etio(df)
-    test_by_csa(df)
+    # vis_hist_etio(df)
+    # init_tx_by_csa(df)
+    # final_tx_by_csa(df)
+    # init_tx_by_etio(df)
+    # outcome_by_etio(df)
+    # outcome_by_etio_no_pie(df)
+    # etio_by_csa(df)
+    # etio_by_csa_no_pie(df)
+    # pieChartBaseDx(df)
+    # sankeyEtioTx(df)
+    # sankeyTypeFinalTx(df)
+    # sankeyTypeOutcome(df)
+    # outcome_by_csa_percent(df)
+    # sankeyTypeFinalTx(df)
+    # test_by_etio(df)
+    # test_by_csa(df)
+
+    display_dist(df, 'Age')
 
 if __name__ == '__main__':
     main()

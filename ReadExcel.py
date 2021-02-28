@@ -37,7 +37,7 @@ def sheet_to_arrays(excel_sheet):
     # print("Processing excel spreadsheet")
     i = 1
 
-    for patient in excel_sheet.iter_rows(max_row=498):  # not sure why I needed to manually hardcode this - size of db
+    for patient in excel_sheet.iter_rows(max_row=513):  # not sure why I needed to manually hardcode this - size of db
         # For each row that has an MRN entry...
         # print("Processing chart #" + str(i))
         row = list()
@@ -304,6 +304,8 @@ def arrays_to_df(patient_array):
 
     df['StudyType'] = df['StudyType'].astype('category')
 
+
+
     return df
 
 
@@ -374,7 +376,7 @@ def matchDx(pt_dx):
     rep = {"te csa": "TECSA",
         "csa w/cns dz (tbi/ cerebrovascular dz/ mass lesion/ neurodegenerative dz/ other)":"Neurologic",
         "primary csa (idiopathic csa)":"Primary",
-        # "osa-associated":"OSA-CSA",  - removed, as these exclude now
+        #"osa-associated":"OSA-CSA",  #  removed, as these excluded now
         "csa w/opioid (methadone/ fentanyl/ oxycontin/ suboxone/ other)":"Medication",
         "csa w/heart dz (hfref <45%/ hfpef >45% /a.fib)":"Cardiac"}
     for dx in pt_dx.split(","):

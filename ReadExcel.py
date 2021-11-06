@@ -386,8 +386,8 @@ def matchDx(pt_dx):
 
 def ahi_label(ahi):
     """return the label for the severity of OSA based on AHI"""
-    if ahi < 5.0:
-        return "none"
+    if ahi <= 5.0:
+        return "mild"  # previously "none"
     elif ahi < 15.0:
         return "mild"
     elif ahi < 30.0:
@@ -395,7 +395,7 @@ def ahi_label(ahi):
     elif ahi >= 30.0:
         return "severe"
     else:
-        return "error"  # shouldn't happen, will cause flag at conversion to type
+        return "mild"  #  previously "error"  # shouldn't happen, will cause flag at conversion to type
 
 
 def matchComorbs(pt_comorb):

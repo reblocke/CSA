@@ -2295,8 +2295,6 @@ def figure_4(df):
     # Add collapsed final treatments
     df['FinalTx_coll'] = df.apply(collapse_final_treatment, axis=1)
 
-    neurologic_df = df.loc[df['PostDx'].str.contains("Neurologic")].sort_values(by='Outcome')
-
     OSA_pure_hist = df.loc[df['BaseDx'] == "Mainly OSA"].sort_values("FinalTx_coll")
     OSA_predom_hist = df.loc[df['BaseDx'] == "Combined OSA/CSA"].sort_values("FinalTx_coll")
     CSA_predom_hist = df.loc[df['BaseDx'] == "Predominantly CSA"].sort_values("FinalTx_coll")
@@ -2308,13 +2306,14 @@ def figure_4(df):
     face_color = ['dimgrey','white', 'white', 'white']
 
     # Pure OSA
+
     bar = sns.countplot(y="FinalTx_coll", data=OSA_pure_hist, ax=axes[3])
     for i, this_bar in enumerate(bar.patches):
         # Set a different hatch for each bar
         this_bar.set_edgecolor('black')
         this_bar.set_facecolor(face_color[i])
         this_bar.set_hatch(hatches[i])
-    axes[3].set(xlabel="", ylabel="<10% CSA")
+    axes[3].set(xlabel="Number of Patients", ylabel="<10% CSA")
 
     # Predom OSA
     bar = sns.countplot(y="FinalTx_coll", data=OSA_predom_hist, ax=axes[2])
@@ -2444,7 +2443,7 @@ def figure_3(df):
         this_bar.set_edgecolor('black')
         this_bar.set_facecolor(face_color[i])
         this_bar.set_hatch(hatches[i])
-    axes[4].set(xlabel="", ylabel="Primary CSA")
+    axes[4].set(xlabel="Number of Patients", ylabel="Primary CSA")
 
     # Combined X axis for L side
     axes[4].get_shared_x_axes().join(axes[4], axes[3], axes[2], axes[1], axes[0]) # axes[5] would need to be added back
@@ -2494,7 +2493,7 @@ def figure_2(df):
         this_bar.set_edgecolor('black')
         this_bar.set_facecolor(face_color[i])
         this_bar.set_hatch(hatches[i])
-    axes[3].set(xlabel="", ylabel="<10% CSA")
+    axes[3].set(xlabel="Number of Patients", ylabel="<10% CSA")
 
     # Predom OSA
     bar = sns.barplot(x="Count", y="Dx", data=OSA_predom_hist, ax=axes[2])
@@ -2543,12 +2542,12 @@ def figure_2(df):
 
 def main():
     # Location of Db file
-    db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
+    db_loc = "/Users/reblocke/Box Sync/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
     # db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/Backups/CSA-Db-Working-Only OSA CSA no inpt.xlsm"
     # uncomment row 377 of readexcel.py if using above (includes OSA-CSA)
     df = arrays_to_df(sheet_to_arrays(load_sheet(db_loc)))
 
-    df.to_excel('output.xlsx')
+    # df.to_excel('output.xlsx')
 
     coded_output(df)
     new_make_tables(df)

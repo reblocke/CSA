@@ -1,4 +1,12 @@
+import argparse
+from contextlib import contextmanager
+import os
+from pathlib import Path
+
 from ReadExcel import *
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.sankey as sankey
@@ -8,6 +16,53 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils.dataframe import dataframe_to_rows
 from sklearn.preprocessing import LabelEncoder
+
+
+@contextmanager
+def working_directory(path):
+    """Temporarily write legacy outputs under a caller-selected directory."""
+    previous = Path.cwd()
+    path.mkdir(parents=True, exist_ok=True)
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(previous)
+
+
+def join_shared_x(*axes):
+    """Compatibility wrapper for old and new matplotlib shared-axis APIs."""
+    if not axes:
+        return
+    shared = axes[0].get_shared_x_axes()
+    join = getattr(shared, "join", None)
+    if join is not None:
+        join(*axes)
+        return
+    for axis in axes[1:]:
+        axis.sharex(axes[0])
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run the legacy Python workflow for the central sleep apnea CPAP "
+            "prescribing project on a local, de-identified workbook."
+        )
+    )
+    parser.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help="Path to a local workbook with the historical CSA database layout.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=Path("outputs/legacy-python"),
+        type=Path,
+        help="Directory for generated tables and figures.",
+    )
+    return parser.parse_args(argv)
 
 
 def summary_stats(df):
@@ -963,7 +1018,7 @@ def count_string_indiv(num, num_patients):
     """returns an string with the number and percentage of an individuals value"""
     output = "%.0f/" % num
     output += str(num_patients)
-    if num_patients is not 0:
+    if num_patients != 0:
         percentage = (num / num_patients) * 100
     else:
         percentage = 0.0
@@ -1369,7 +1424,7 @@ def outcome_by_etio(df):
     axes[4, 1].set(xlabel="\nProportion with each outcome\nby etiology")
 
     # Combined X axis for L side
-    axes[4, 0].get_shared_x_axes().join(axes[4, 0], axes[3, 0], axes[2, 0], axes[1, 0], axes[0, 0]) # axes[5, 0] would need to be added back
+    join_shared_x(axes[4, 0], axes[3, 0], axes[2, 0], axes[1, 0], axes[0, 0]) # axes[5, 0] would need to be added back
     axes[0, 0].set_xticklabels("")
     axes[1, 0].set_xticklabels("")
     axes[2, 0].set_xticklabels("")
@@ -1477,7 +1532,7 @@ def outcome_by_etio_no_pie(df):
     axes[4].set(xlabel="Outcome of initial treatment by etiology", ylabel="Primary CSA")
 
     # Combined X axis for L side
-    axes[4].get_shared_x_axes().join(axes[4], axes[3], axes[2], axes[1], axes[0]) # axes[5] would need to be added back
+    join_shared_x(axes[4], axes[3], axes[2], axes[1], axes[0]) # axes[5] would need to be added back
     axes[0].set_xticklabels("")
     axes[1].set_xticklabels("")
     axes[2].set_xticklabels("")
@@ -1780,7 +1835,7 @@ def etio_by_csa(df):
     axes[3, 1].set(xlabel="\nProportion with each etiology\nContributing to Central Events")
 
     # Combined X axis for L side
-    axes[3, 0].get_shared_x_axes().join(axes[3,0], axes[2,0], axes[1,0], axes[0,0])
+    join_shared_x(axes[3,0], axes[2,0], axes[1,0], axes[0,0])
     axes[0, 0].set_xticklabels("")
     axes[1, 0].set_xticklabels("")
     axes[2, 0].set_xticklabels("")
@@ -1859,7 +1914,7 @@ def etio_by_csa_no_pie(df):
     # axes[0].set(xlabel="", ylabel=">90% Central Events", yticklabels=[])
 
     # Combined X axis for L side
-    axes[3].get_shared_x_axes().join(axes[3], axes[2], axes[1], axes[0])
+    join_shared_x(axes[3], axes[2], axes[1], axes[0])
     axes[0].set_xticklabels("")
     axes[1].set_xticklabels("")
     axes[2].set_xticklabels("")
@@ -2078,8 +2133,10 @@ def coded_output(database_df, output_loc='coded_output.xlsx'):
     # labels_ser["has_neurodegen"] = "0 = no neurodegenerative disorder, 1 = has neurodegenerative disorder"
 
     # then add those two together, then round 2 (= has both) back to 1 (= has any)
-    output_df["has_dem_or_neurodegen"] = (database_df["CNS"].apply(dz_is_in, args=("dementia",)) + \
-                                         database_df["CNS"].apply(dz_is_in, args=("neurodegenerative",))).replace(2, 1)
+    output_df["has_dem_or_neurodegen"] = (
+        database_df["CNS"].apply(dz_is_in, args=("dementia",)).astype(int)
+        + database_df["CNS"].apply(dz_is_in, args=("neurodegenerative",)).astype(int)
+    ).replace(2, 1)
     labels_ser["has_dem_or_neurodegen"] = "0 = no dementia or neurodegen, 1 = has dementia or neurodegen"
 
     # Dementia and (stroke or neurodegen)
@@ -2090,8 +2147,10 @@ def coded_output(database_df, output_loc='coded_output.xlsx'):
     labels_ser["has_dem_and_cva"] = "0 = no cva or no dementia, 1 = has both cva and dementia"
 
     # then add those two together, then round 2 (= has both) back to 1 (= has any)
-    output_df["has_dem_and_cva_or_degen"] = (database_df["CNS"].apply(dzs_are_in, args=("neurodegenerative", "cva",)) + \
-                                            database_df["CNS"].apply(dzs_are_in, args=("dementia", "cva",))).replace(2,1)
+    output_df["has_dem_and_cva_or_degen"] = (
+        database_df["CNS"].apply(dzs_are_in, args=("neurodegenerative", "cva",)).astype(int)
+        + database_df["CNS"].apply(dzs_are_in, args=("dementia", "cva")).astype(int)
+    ).replace(2,1)
     labels_ser["has_dem_and_cva_or_degen"] = "1 = has (dem and cva) or (neurodegen and cva), 0 = doesn't have those combos"
 
     # Final Treatment
@@ -2258,10 +2317,10 @@ def display_dist(df, label):
     sns.set(style="white", palette="pastel")
     fig, axes = plt.subplots(2, 1, figsize=(6, 6))  # 6, 2 if OSA CSA
 
-    axes[1].get_shared_x_axes().join(axes[1], axes[0])
+    join_shared_x(axes[1], axes[0])
     axes[1].set_aspect(aspect=25)
 
-    sns.distplot(df[label], ax=axes[0], kde=False, norm_hist=False, color='teal')
+    sns.histplot(df[label], ax=axes[0], kde=False, stat="count", color='teal')
     sns.boxplot(data=df, x=label, ax=axes[1], color='skyblue')
 
     sns.despine(ax=axes[0], top=True, bottom=True, right=True)
@@ -2343,7 +2402,7 @@ def figure_4(df):
     axes[0].set(xlabel="", ylabel=">90% CSA")
 
     # Combined X axis for L side
-    axes[3].get_shared_x_axes().join(axes[3], axes[2], axes[1], axes[0])
+    join_shared_x(axes[3], axes[2], axes[1], axes[0])
     axes[0].set_xticklabels("")
     axes[1].set_xticklabels("")
     axes[2].set_xticklabels("")
@@ -2446,7 +2505,7 @@ def figure_3(df):
     axes[4].set(xlabel="Number of Patients", ylabel="Primary CSA")
 
     # Combined X axis for L side
-    axes[4].get_shared_x_axes().join(axes[4], axes[3], axes[2], axes[1], axes[0]) # axes[5] would need to be added back
+    join_shared_x(axes[4], axes[3], axes[2], axes[1], axes[0]) # axes[5] would need to be added back
     axes[0].set_xticklabels("")
     axes[1].set_xticklabels("")
     axes[2].set_xticklabels("")
@@ -2523,7 +2582,7 @@ def figure_2(df):
     axes[0].set(xlabel="", ylabel=">90% CSA")
 
     # Combined X axis for L side
-    axes[3].get_shared_x_axes().join(axes[3], axes[2], axes[1], axes[0])
+    join_shared_x(axes[3], axes[2], axes[1], axes[0])
     axes[0].set_xticklabels("")
     axes[1].set_xticklabels("")
     axes[2].set_xticklabels("")
@@ -2540,47 +2599,28 @@ def figure_2(df):
     # plt.show()
 
 
-def main():
-    # Location of Db file
-    db_loc = "/Users/reblocke/Box Sync/Residency Personal Files/Scholarly Work/CSA/Databases/CSA-Db-Working.xlsm"
-    # db_loc = "/Users/reblocke/Box/Residency Personal Files/Scholarly Work/CSA/Databases/Backups/CSA-Db-Working-Only OSA CSA no inpt.xlsm"
-    # uncomment row 377 of readexcel.py if using above (includes OSA-CSA)
-    df = arrays_to_df(sheet_to_arrays(load_sheet(db_loc)))
+def main(argv=None):
+    args = parse_args(argv)
+    input_path = args.input.expanduser().resolve()
+    output_dir = args.output_dir.expanduser().resolve()
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input workbook not found: {input_path}")
 
-    # df.to_excel('output.xlsx')
+    df = arrays_to_df(sheet_to_arrays(load_sheet(input_path)))
 
-    coded_output(df)
-    new_make_tables(df)
+    with working_directory(output_dir):
+        coded_output(df)
+        new_make_tables(df)
 
-    figure_2(df)
-    figure_3(df)
-    figure_4(df)
+        figure_2(df)
+        figure_3(df)
+        figure_4(df)
 
-    # print("\n\n---Total of number of patients where each etiology was contributory---")
-    # print("---(will some to more than total given mutliple dx's)---\n")
+        # Other historical visualizations remain available as functions above.
+        display_dist(df, 'Age')
 
-    # Visualization tester function
-    # visualizations(df)
-
-    # Other visualizations:
-    # vis_hist_etio(df)
-    # init_tx_by_csa(df)
-    # final_tx_by_csa(df)
-    # init_tx_by_etio(df)
-    # outcome_by_etio(df)
-    # outcome_by_etio_no_pie(df)
-    # etio_by_csa(df)
-    # etio_by_csa_no_pie(df)
-    # pieChartBaseDx(df)
-    # sankeyEtioTx(df)
-    # sankeyTypeFinalTx(df)
-    # sankeyTypeOutcome(df)
-    # outcome_by_csa_percent(df)
-    # sankeyTypeFinalTx(df)
-    # test_by_etio(df)
-    # test_by_csa(df)
-
-    display_dist(df, 'Age')
+    print(f"Wrote legacy Python outputs to {output_dir}")
+    return 0
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

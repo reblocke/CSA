@@ -31,13 +31,34 @@ def sheet_to_arrays(excel_sheet):
     Time_ASV_Column = 19
     # Loc_Column = 20
     Sleep_Study_Column = 21
+    source_columns = [
+        Age_Column,
+        Sex_Column,
+        Race_Column,
+        BMI_Column,
+        Smoking_Column,
+        Comorb_Column,
+        Heart_Column,
+        CNS_Column,
+        Base_Dx_Column,
+        AHI_Column,
+        Post_Dx_Column,
+        Final_Tx_Column,
+        Outcome_Column,
+        Path_ASV_Column,
+        Time_ASV_Column,
+        Sleep_Study_Column,
+    ]
 
     Patients = list()
 
     # print("Processing excel spreadsheet")
-    i = 1
+    i = 2
 
-    for patient in excel_sheet.iter_rows(max_row=513):  # not sure why I needed to manually hardcode this - size of db
+    for patient in excel_sheet.iter_rows(min_row=2, max_row=513):  # historical database size
+        if all(patient[col].value in (None, "") for col in source_columns):
+            i = i+1
+            continue
         # For each row that has an MRN entry...
         # print("Processing chart #" + str(i))
         row = list()
@@ -130,7 +151,7 @@ def sheet_to_arrays(excel_sheet):
         i = i+1
 
     # print(Patients[1:])
-    return Patients[1:]  # take off the first row = labels
+    return Patients
 
 
 def histo_dx_includes(df, return_df=False):
@@ -231,9 +252,9 @@ def arrays_to_df(patient_array):
 
     df['Sex'] = df['Sex'].astype('category')
 
-    df['Race'] = df['Race'].astype('category')
     df['Race'] = df['Race'].replace({"not hispanic/ latino": 'not hispanic/latino'})
     df['Race'] = df['Race'].replace({"not hispanic/latino": 'white'})  # Utah Adjustment :(
+    df['Race'] = df['Race'].astype('category')
 
     df['Smoking'] = df['Smoking'].astype('category')
 
@@ -353,7 +374,7 @@ def infer_initial_treatment(patient):
     init_tx = 'not cpap/asv (or unknown)'    # default
     if patient['FinalTx'] == "cpap":
         init_tx = "cpap"
-    if patient['FinalTx'] == "bipap" or patient['FinalTx' == "bipap-o2"]:
+    if patient['FinalTx'] == "bipap" or patient['FinalTx'] == "bipap-o2":
         if patient['Outcome'] == 'failed cpap':
             init_tx = "cpap"
     if patient['FinalTx'] == "asv":

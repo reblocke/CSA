@@ -1,48 +1,22 @@
 cff-version: 1.2.0
-message: "If you use this repository, cite the published Lung article and the repository commit or release."
-title: "CSA legacy Python analysis code"
+message: "If you use this repository, cite the repository commit or release."
+title: "CSA legacy Python descriptive analysis code"
 type: software
 authors:
   - family-names: Locke
     given-names: Brian W.
     orcid: "https://orcid.org/0000-0002-3588-5238"
 repository-code: "https://github.com/reblocke/CSA"
+url: "https://github.com/reblocke/CSA"
 license: MIT
 date-released: "2026-06-03"
-abstract: "Legacy Python table and figure workflow associated with a central sleep apnea CPAP-prescribing study."
+abstract: "Legacy Python table and figure workflow for an unpublished central sleep apnea descriptive analysis."
 keywords:
   - central sleep apnea
-  - CPAP
+  - descriptive analysis
   - sleep medicine
   - clinical research
   - Python
-preferred-citation:
-  type: article
-  title: "Predictors of Initial CPAP Prescription and Subsequent Course with CPAP in Patients with Central Sleep Apneas at a Single Center"
-  authors:
-    - family-names: Locke
-      given-names: Brian W.
-    - family-names: Sellman
-      given-names: Jeffrey
-    - family-names: McFarland
-      given-names: Jonathan
-    - family-names: Uribe
-      given-names: Francisco
-    - family-names: Workman
-      given-names: Kimberly
-    - family-names: Sundar
-      given-names: Krishna M.
-  journal: Lung
-  year: 2023
-  volume: "201"
-  issue: "6"
-  start: 625
-  end: 634
-  doi: "10.1007/s00408-023-00657-z"
-  identifiers:
-    - type: doi
-      value: "10.1007/s00408-023-00657-z"
-    - type: pmid
-      value: "37987861"
-    - type: pmcid
-      value: "PMC10869204"
+identifiers:
+  - type: url
+    value: "https://github.com/reblocke/CSA/releases/tag/legacy-python-outputs-2026-06-03"

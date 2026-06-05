@@ -1,6 +1,6 @@
 # Reproducing the Legacy Python Workflow
 
-This repository can rerun the historical Python table and figure workflow on a compatible local workbook. It does not include the original patient-level data.
+This repository can rerun the historical Python table and figure workflow associated with the ATS 2020 CSA abstract on a compatible local workbook. It does not include the original patient-level data.
 
 ## Setup
 
@@ -38,4 +38,6 @@ The synthetic fixture validates workbook parsing and output writing, but it is n
 
 ## Relationship to Downstream Work
 
-This repository is retained for historical Python workflow transparency around an unpublished descriptive analysis. It is not the code repository for the later CPAP-prescribing publication. The separate downstream Stata repository for that final paper workflow is [reblocke/CSA-CPAP-Prescribing](https://github.com/reblocke/CSA-CPAP-Prescribing).
+This repository is retained for historical Python workflow transparency around the CSA cohort described in the ATS 2020 abstract **"Spectrum of Central Sleep Apnea at an Academic Sleep Center Between 2016-2018 and Treatment Responses to CPAP vs. Adaptive Servo Ventilation."**
+
+It is not the code repository for the later CPAP-prescribing publication. The separate downstream Stata repository for that final paper workflow is [reblocke/CSA-CPAP-Prescribing](https://github.com/reblocke/CSA-CPAP-Prescribing).

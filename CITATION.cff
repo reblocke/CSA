@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you use this repository, cite the repository commit or release."
-title: "CSA legacy Python descriptive analysis code"
+message: "If you use this repository, cite the repository commit or release and cite the ATS 2020 abstract for the scholarly analysis."
+title: "CSA legacy Python workflow for ATS 2020 central sleep apnea abstract"
 type: software
 authors:
   - family-names: Locke
@@ -10,13 +10,40 @@ repository-code: "https://github.com/reblocke/CSA"
 url: "https://github.com/reblocke/CSA"
 license: MIT
 date-released: "2026-06-03"
-abstract: "Legacy Python table and figure workflow for an unpublished central sleep apnea descriptive analysis."
+abstract: "Legacy Python table and figure workflow associated with an ATS 2020 central sleep apnea descriptive analysis abstract."
 keywords:
   - central sleep apnea
   - descriptive analysis
+  - adaptive servo ventilation
+  - CPAP
+  - ATS 2020
   - sleep medicine
   - clinical research
   - Python
 identifiers:
   - type: url
     value: "https://github.com/reblocke/CSA/releases/tag/legacy-python-outputs-2026-06-03"
+preferred-citation:
+  type: conference-paper
+  title: "Spectrum of Central Sleep Apnea at an Academic Sleep Center Between 2016-2018 and Treatment Responses to CPAP vs. Adaptive Servo Ventilation"
+  authors:
+    - family-names: Sellman
+      given-names: J.
+    - family-names: Locke
+      given-names: B. W.
+    - family-names: McFarland
+      given-names: J.
+    - family-names: Uribe
+      given-names: F.
+    - family-names: Sundar
+      given-names: K.
+  collection-title: "American Journal of Respiratory and Critical Care Medicine"
+  volume: "201"
+  issue: "Supplement_1"
+  pages: "A2430"
+  year: 2020
+  date-published: "2020-05-01"
+  doi: "10.1164/ajrccm-conference.2020.201.1_MeetingAbstracts.A2430"
+  url: "https://doi.org/10.1164/ajrccm-conference.2020.201.1_MeetingAbstracts.A2430"
+  conference:
+    name: "American Thoracic Society 2020 International Conference"

@@ -1,19 +1,23 @@
-# CSA Legacy Python Descriptive Analysis
+# CSA Legacy Python Workflow for ATS 2020 Central Sleep Apnea Abstract
 
-Legacy Python code for an unpublished central sleep apnea (CSA) descriptive analysis developed during an ATS-era manuscript workflow.
+Legacy Python code for the central sleep apnea (CSA) cohort described in the ATS 2020 abstract **"Spectrum of Central Sleep Apnea at an Academic Sleep Center Between 2016-2018 and Treatment Responses to CPAP vs. Adaptive Servo Ventilation."**
 
 ## Description
 
-This repository is a cleaned preservation copy of historical Python scripts for CSA cohort description, tables, and exploratory figures. It is intended for code inspection, documentation of the old workflow, and local reruns on authorized compatible data.
+This repository is a cleaned preservation copy of historical Python scripts for CSA cohort description, treatment-response summaries, tables, and exploratory figures. It is intended for code inspection, documentation of the old workflow, and local reruns on authorized compatible data.
+
+The associated indexed abstract is:
+
+- J. Sellman, B. W. Locke, J. McFarland, F. Uribe, and K. Sundar. **Spectrum of Central Sleep Apnea at an Academic Sleep Center Between 2016-2018 and Treatment Responses to CPAP vs. Adaptive Servo Ventilation.** *American Journal of Respiratory and Critical Care Medicine*. 2020;201(Supplement_1):A2430. DOI: [10.1164/ajrccm-conference.2020.201.1_MeetingAbstracts.A2430](https://doi.org/10.1164/ajrccm-conference.2020.201.1_MeetingAbstracts.A2430).
 
 This repository is not the code repository for the later CPAP-prescribing publication. The downstream Stata repository [reblocke/CSA-CPAP-Prescribing](https://github.com/reblocke/CSA-CPAP-Prescribing) supports that separate final paper workflow.
 
 ## Project Status
 
-- Status: unpublished legacy descriptive analysis.
+- Status: legacy Python workflow associated with an indexed ATS 2020 abstract.
 - Primary use: inspect or rerun the historical Python workflow on a compatible local workbook.
 - Public data status: no patient-level clinical data are included.
-- Repository code citation: see [CITATION.cff](CITATION.cff).
+- Citation: cite the ATS 2020 abstract for the scholarly work and this repository for software/code reuse; see [CITATION.cff](CITATION.cff).
 
 ## Data Access
 
@@ -49,7 +53,7 @@ python DataAnalysis.py --input tests/fixtures/synthetic_csa_workbook.xlsx --outp
 
 ## Legacy Outputs
 
-Generated root-level PNG and XLSX outputs that were previously tracked in git were archived before cleanup in the GitHub release [legacy-python-outputs-2026-06-03](https://github.com/reblocke/CSA/releases/tag/legacy-python-outputs-2026-06-03). These files are historical unpublished Python workflow artifacts and are not treated as final manuscript figures.
+Generated root-level PNG and XLSX outputs that were previously tracked in git were archived before cleanup in the GitHub release [legacy-python-outputs-2026-06-03](https://github.com/reblocke/CSA/releases/tag/legacy-python-outputs-2026-06-03). These files are historical artifacts from the Python workflow associated with the ATS 2020 abstract and are not treated as final journal-paper figures.
 
 ## Dependencies
 
@@ -57,7 +61,9 @@ The legacy workflow uses Python plus `pandas`, `openpyxl`, `matplotlib`, `seabor
 
 ## Citation
 
-Please cite this repository as a legacy software artifact if you reuse or adapt the code. Machine-readable citation metadata are provided in [CITATION.cff](CITATION.cff).
+Please cite the ATS 2020 abstract for the scholarly analysis and this repository as a legacy software artifact if you reuse or adapt the code. Machine-readable citation metadata are provided in [CITATION.cff](CITATION.cff).
+
+An author-written repository summary for machine indexing is available at [abstract/ats-2020-summary.md](abstract/ats-2020-summary.md). This repository links to the publisher record and does not mirror the full publisher abstract text.
 
 ## Security and Hygiene Notes
 

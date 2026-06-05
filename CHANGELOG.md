@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-06-05
+
+- Updated repository framing to cite the indexed ATS 2020 abstract, **"Spectrum of Central Sleep Apnea at an Academic Sleep Center Between 2016-2018 and Treatment Responses to CPAP vs. Adaptive Servo Ventilation."**
+- Added the ATS 2020 abstract DOI and preferred citation metadata while preserving the correction that `CSA` is separate from the later `CSA-CPAP-Prescribing` paper repository.
+- Added an author-written abstract summary for machine indexing without copying full publisher abstract text.
+
 ## 2026-06-04
 
 - Corrected repository framing: `CSA` is an unpublished legacy Python descriptive-analysis repository, not the code repository for the later CPAP-prescribing publication.

@@ -1,12 +1,10 @@
-# CSA Legacy Python Analysis
+# CSA Legacy Python Descriptive Analysis
 
-This public repository preserves a legacy Python workflow for a central sleep apnea project associated with:
+This public repository preserves a legacy Python workflow for an unpublished central sleep apnea descriptive analysis.
 
-Locke BW, Sellman J, McFarland J, Uribe F, Workman K, Sundar KM. Predictors of Initial CPAP Prescription and Subsequent Course with CPAP in Patients with Central Sleep Apneas at a Single Center. Lung. 2023;201(6):625-634. DOI: 10.1007/s00408-023-00657-z. PMID: 37987861. PMCID: PMC10869204.
+It is not the code repository for the later CPAP-prescribing publication. The separate downstream Stata repository for that final paper workflow is:
 
-Primary final paper code repository: https://github.com/reblocke/CSA-CPAP-Prescribing
-
-Historical preprint record: DOI 10.21203/rs.3.rs-3199807/v1; PMID 37547021; PMCID PMC10402256.
+https://github.com/reblocke/CSA-CPAP-Prescribing
 
 ## Use
 
@@ -20,8 +18,8 @@ The original patient-level workbook is restricted EHR/sleep-center data and is n
 
 ## Important Files
 
-- README.md: human-readable overview, links, workflow, and citation guidance.
-- CITATION.cff: machine-readable article and repository citation metadata.
+- README.md: human-readable overview, workflow, data restrictions, citation, and license guidance.
+- CITATION.cff: machine-readable repository software citation metadata.
 - DATA_DICTIONARY.md: expected workbook columns, derived fields, and category mappings.
 - REPRODUCING.md: local reproduction workflow with restricted data.
 - DataAnalysis.py and ReadExcel.py: legacy Python source code.
@@ -29,4 +27,4 @@ The original patient-level workbook is restricted EHR/sleep-center data and is n
 
 ## Safety
 
-Do not add raw clinical data, PHI, credentials, local path files, or publisher-formatted article text. Historical generated PNG/XLSX files were moved out of the default branch and archived in the legacy-python-outputs-2026-06-03 GitHub release.
+Do not add raw clinical data, PHI, credentials, local path files, private manuscript drafts, or publisher-formatted article text. Historical generated PNG/XLSX files were moved out of the default branch and archived in the legacy-python-outputs-2026-06-03 GitHub release.

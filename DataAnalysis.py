@@ -46,8 +46,8 @@ def join_shared_x(*axes):
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
         description=(
-            "Run the legacy Python workflow for the central sleep apnea CPAP "
-            "prescribing project on a local, de-identified workbook."
+            "Run the legacy Python workflow for the central sleep apnea "
+            "descriptive analysis on a local, de-identified workbook."
         )
     )
     parser.add_argument(

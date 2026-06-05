@@ -36,6 +36,6 @@ python DataAnalysis.py --input tests/fixtures/synthetic_csa_workbook.xlsx --outp
 
 The synthetic fixture validates workbook parsing and output writing, but it is not scientifically meaningful.
 
-## Relationship to Published Results
+## Relationship to Downstream Work
 
-The final Lung 2023 paper analysis repository is [reblocke/CSA-CPAP-Prescribing](https://github.com/reblocke/CSA-CPAP-Prescribing). This repository is retained for historical Python workflow transparency.
+This repository is retained for historical Python workflow transparency around an unpublished descriptive analysis. It is not the code repository for the later CPAP-prescribing publication. The separate downstream Stata repository for that final paper workflow is [reblocke/CSA-CPAP-Prescribing](https://github.com/reblocke/CSA-CPAP-Prescribing).

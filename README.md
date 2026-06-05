@@ -1,20 +1,19 @@
-# CSA Legacy Python Analysis
+# CSA Legacy Python Descriptive Analysis
 
-Legacy Python code for early central sleep apnea (CSA) descriptive analyses associated with the publication **“Predictors of Initial CPAP Prescription and Subsequent Course with CPAP in Patients with Central Sleep Apneas at a Single Center.”**
+Legacy Python code for an unpublished central sleep apnea (CSA) descriptive analysis developed during an ATS-era manuscript workflow.
 
 ## Description
 
-This repository is a cleaned, citable preservation copy of the historical Python workflow used before the final paper-facing Stata analysis repository. It is intended for transparency, code inspection, and local reruns on authorized compatible data.
+This repository is a cleaned preservation copy of historical Python scripts for CSA cohort description, tables, and exploratory figures. It is intended for code inspection, documentation of the old workflow, and local reruns on authorized compatible data.
 
-## Publication Links
+This repository is not the code repository for the later CPAP-prescribing publication. The downstream Stata repository [reblocke/CSA-CPAP-Prescribing](https://github.com/reblocke/CSA-CPAP-Prescribing) supports that separate final paper workflow.
 
-- Version of record: Locke BW, Sellman J, McFarland J, Uribe F, Workman K, Sundar KM. *Lung*. 2023;201(6):625-634. DOI: [10.1007/s00408-023-00657-z](https://doi.org/10.1007/s00408-023-00657-z). PMID: [37987861](https://pubmed.ncbi.nlm.nih.gov/37987861/). PMCID: [PMC10869204](https://pmc.ncbi.nlm.nih.gov/articles/PMC10869204/).
-- Historical preprint: DOI [10.21203/rs.3.rs-3199807/v1](https://doi.org/10.21203/rs.3.rs-3199807/v1). PMID: [37547021](https://pubmed.ncbi.nlm.nih.gov/37547021/). PMCID: [PMC10402256](https://pmc.ncbi.nlm.nih.gov/articles/PMC10402256/).
-- Final paper analysis repository named by the code availability statement: [reblocke/CSA-CPAP-Prescribing](https://github.com/reblocke/CSA-CPAP-Prescribing).
+## Project Status
 
-## Relationship to the Paper
-
-This repository preserves a historical Python workflow used during the CSA project. The final manuscript regression analyses and paper-facing outputs are maintained in `CSA-CPAP-Prescribing`, which is the primary code repository for reproducing the published Lung article. Use this repository when you need to inspect or rerun the legacy Python table/figure workflow on a compatible local workbook.
+- Status: unpublished legacy descriptive analysis.
+- Primary use: inspect or rerun the historical Python workflow on a compatible local workbook.
+- Public data status: no patient-level clinical data are included.
+- Repository code citation: see [CITATION.cff](CITATION.cff).
 
 ## Data Access
 
@@ -46,11 +45,11 @@ python DataAnalysis.py --input tests/fixtures/synthetic_csa_workbook.xlsx --outp
 - `DATA_DICTIONARY.md` - expected workbook columns and derived variables.
 - `REPRODUCING.md` - guidance for reproducing the legacy workflow with local restricted data.
 - `tests/` - synthetic smoke tests that contain no clinical data.
-- `llms.txt` and `CITATION.cff` - machine-readable discovery and citation metadata.
+- `llms.txt` and `CITATION.cff` - machine-readable discovery and repository citation metadata.
 
 ## Legacy Outputs
 
-Generated root-level PNG and XLSX outputs that were previously tracked in git were archived before cleanup in the GitHub release [legacy-python-outputs-2026-06-03](https://github.com/reblocke/CSA/releases/tag/legacy-python-outputs-2026-06-03). These files are historical Python workflow artifacts and are not guaranteed to match the final Lung 2023 manuscript figures.
+Generated root-level PNG and XLSX outputs that were previously tracked in git were archived before cleanup in the GitHub release [legacy-python-outputs-2026-06-03](https://github.com/reblocke/CSA/releases/tag/legacy-python-outputs-2026-06-03). These files are historical unpublished Python workflow artifacts and are not treated as final manuscript figures.
 
 ## Dependencies
 
@@ -58,7 +57,7 @@ The legacy workflow uses Python plus `pandas`, `openpyxl`, `matplotlib`, `seabor
 
 ## Citation
 
-Please cite the published article as the primary scholarly object and this repository as the legacy software artifact. Machine-readable citation metadata are provided in [CITATION.cff](CITATION.cff).
+Please cite this repository as a legacy software artifact if you reuse or adapt the code. Machine-readable citation metadata are provided in [CITATION.cff](CITATION.cff).
 
 ## Security and Hygiene Notes
 
@@ -66,7 +65,7 @@ Historical SSH key files were removed from the default branch during the 2026 re
 
 ## License
 
-Repository code is released under the MIT License. Restricted clinical data, third-party material, and publisher-formatted article text are not included and are not covered by this repository license.
+Repository code is released under the MIT License. Restricted clinical data, third-party material, and unpublished manuscript drafts are not included and are not covered by this repository license.
 
 ## Contact
 
